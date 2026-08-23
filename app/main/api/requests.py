@@ -25,6 +25,7 @@ from app.main.services.request_service import (
     get_statistics_summary,
 )
 from app.main.services.pdf_service import generate_request_pdf
+from app.main.services.excel_service import generate_requests_xlsx
 
 # prefix 없는 라우터: /api/requests 계열과 /api/statistics를 같은 모듈에 둔다.
 router = APIRouter(tags=["requests"])
@@ -127,6 +128,41 @@ def get_requests(
         current_status=current_status,
     )
     return {"items": items, "total": len(items)}
+
+
+@router.get("/api/requests/export")
+def export_requests(
+    pickup_date_from: date | None = Query(default=None),
+    pickup_date_to: date | None = Query(default=None),
+    business_office_id: int | None = Query(default=None, gt=0),
+    current_status: RequestStatus | None = Query(default=None),
+    db: Session = Depends(get_db),
+):
+    """현재 목록 필터 결과를 XLSX 로 다운로드 (WP-11).
+
+    목록 API와 동일한 필터(pickup_date 기간 + 사업소 + 상태, AND 결합)와
+    동일한 행 집합·정렬을 사용한다. from > to 는 422 로 거부.
+    """
+    if pickup_date_from is not None and pickup_date_to is not None:
+        if pickup_date_from > pickup_date_to:
+            raise HTTPException(
+                status_code=status.HTTP_422_UNPROCESSABLE_ENTITY,
+                detail="pickup_date_from이 pickup_date_to보다 늦을 수 없습니다",
+            )
+    path = generate_requests_xlsx(
+        db,
+        {
+            "pickup_date_from": pickup_date_from,
+            "pickup_date_to": pickup_date_to,
+            "business_office_id": business_office_id,
+            "current_status": current_status,
+        },
+    )
+    return FileResponse(
+        path,
+        media_type="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+        filename=path.name,
+    )
 
 
 @router.get("/api/requests/{request_id}", response_model=RequestOut)
