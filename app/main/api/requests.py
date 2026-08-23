@@ -46,11 +46,11 @@ def create_new_request(data: RequestCreate, db: Session = Depends(get_db)):
     try:
         request = create_request(db, data)
         return request
-    except Exception as e:
+    except Exception:
         db.rollback()
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-            detail=f"접수 생성 실패: {str(e)}",
+            detail="접수 생성 중 서버 오류가 발생했습니다.",
         )
 
 
@@ -63,11 +63,11 @@ def patch_request(request_id: int, data: RequestUpdate, db: Session = Depends(ge
     except ValueError as e:
         db.rollback()
         raise HTTPException(status_code=status.HTTP_409_CONFLICT, detail=str(e))
-    except Exception as e:
+    except Exception:
         db.rollback()
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-            detail=f"접수 수정 실패: {str(e)}",
+            detail="접수 수정 중 서버 오류가 발생했습니다.",
         )
 
 
@@ -94,11 +94,11 @@ def patch_request_status(
             status_code=status.HTTP_409_CONFLICT,
             detail="다른 요청이 먼저 변경했으므로 다시 조회 후 재시도해 주세요.",
         )
-    except Exception as e:
+    except Exception:
         db.rollback()
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-            detail=f"상태 변경 실패: {str(e)}",
+            detail="상태 변경 중 서버 오류가 발생했습니다.",
         )
 
 
