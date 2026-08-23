@@ -3,7 +3,7 @@
 from sqlalchemy.orm import Session
 from sqlalchemy.orm.exc import StaleDataError
 from sqlalchemy import text, select, func
-from datetime import datetime, timezone
+from datetime import date, datetime, timezone
 from app.main.models.models import Request, RequestStatus, RequestStatusHistory, PickupLocationType
 from app.main.schemas.request import RequestCreate, RequestUpdate
 
@@ -179,3 +179,35 @@ def transition_request_status(db: Session, request_id: int, target_status: Reque
         raise
 
     return request
+
+
+def get_request(db: Session, request_id: int) -> Request | None:
+    """상세 조회 (존재하지 않으면 None)"""
+    return db.get(Request, request_id)
+
+
+def list_requests(
+    db: Session,
+    pickup_date_from: date | None = None,
+    pickup_date_to: date | None = None,
+    business_office_id: int | None = None,
+    current_status: RequestStatus | None = None,
+) -> list[Request]:
+    """목록 조회.
+
+    - 기간 필터는 pickup_date(수거희망일) 기준: from <= pickup_date <= to
+    - 입력된 조건은 AND로 결합
+    - 정렬: pickup_date ASC, id ASC
+    - from > to 검증은 호출부(API)가 422/400으로 거부
+    """
+    stmt = select(Request)
+    if pickup_date_from is not None:
+        stmt = stmt.where(Request.pickup_date >= pickup_date_from)
+    if pickup_date_to is not None:
+        stmt = stmt.where(Request.pickup_date <= pickup_date_to)
+    if business_office_id is not None:
+        stmt = stmt.where(Request.business_office_id == business_office_id)
+    if current_status is not None:
+        stmt = stmt.where(Request.current_status == current_status)
+    stmt = stmt.order_by(Request.pickup_date.asc(), Request.id.asc())
+    return db.execute(stmt).scalars().all()

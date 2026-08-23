@@ -78,3 +78,9 @@ class RequestOut(BaseModel):
     updated_at: datetime
 
     model_config = {"from_attributes": True}
+
+
+class RequestListOut(BaseModel):
+    """목록 조회 응답 (필터된 항목 + 전체 개수)."""
+    items: list[RequestOut]
+    total: int

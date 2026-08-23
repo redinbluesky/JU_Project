@@ -1,6 +1,8 @@
 """Request API 라우터"""
 
-from fastapi import APIRouter, Depends, HTTPException, status
+from datetime import date
+
+from fastapi import APIRouter, Depends, HTTPException, Query, status
 from sqlalchemy.orm import Session
 from sqlalchemy.orm.exc import StaleDataError
 from app.main.db.session import SessionLocal
@@ -9,12 +11,15 @@ from app.main.schemas.request import (
     RequestCreate,
     RequestUpdate,
     RequestOut,
+    RequestListOut,
     RequestStatusTransition,
 )
 from app.main.services.request_service import (
     create_request,
     update_request,
     transition_request_status,
+    list_requests,
+    get_request,
 )
 
 router = APIRouter(prefix="/api/requests", tags=["requests"])
@@ -89,3 +94,43 @@ def patch_request_status(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
             detail=f"상태 변경 실패: {str(e)}",
         )
+
+
+@router.get("", response_model=RequestListOut)
+def get_requests(
+    pickup_date_from: date | None = Query(default=None),
+    pickup_date_to: date | None = Query(default=None),
+    business_office_id: int | None = Query(default=None, gt=0),
+    current_status: RequestStatus | None = Query(default=None),
+    db: Session = Depends(get_db),
+):
+    """접수 목록 조회 (pickup_date 기준 기간 + 사업소 + 상태 필터, AND 결합).
+
+    pickup_date ASC, id ASC 정렬. from > to 는 422로 거부.
+    """
+    if pickup_date_from is not None and pickup_date_to is not None:
+        if pickup_date_from > pickup_date_to:
+            raise HTTPException(
+                status_code=status.HTTP_422_UNPROCESSABLE_ENTITY,
+                detail="pickup_date_from이 pickup_date_to보다 늦을 수 없습니다",
+            )
+    items = list_requests(
+        db,
+        pickup_date_from=pickup_date_from,
+        pickup_date_to=pickup_date_to,
+        business_office_id=business_office_id,
+        current_status=current_status,
+    )
+    return {"items": items, "total": len(items)}
+
+
+@router.get("/{request_id}", response_model=RequestOut)
+def get_request_detail(request_id: int, db: Session = Depends(get_db)):
+    """접수 상세 조회 (미존재: 404)"""
+    request = get_request(db, request_id)
+    if request is None:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail=f"존재하지 않는 접수: id={request_id}",
+        )
+    return request
