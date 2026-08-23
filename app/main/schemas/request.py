@@ -31,6 +31,32 @@ class RequestCreate(BaseModel):
         return self
 
 
+class RequestUpdate(BaseModel):
+    """수정 가능 필드만 포함 (business_office_id는 수정 불가)"""
+    pickup_date: date
+    pickup_location_type: PickupLocationType
+    pickup_address: str = Field(..., min_length=1, max_length=255)
+    electric_bed_quantity: int = Field(..., ge=0)
+    wheelchair_quantity: int = Field(..., ge=0)
+    other_small_quantity: int = Field(..., ge=0)
+
+    @field_validator("pickup_date")
+    @classmethod
+    def pickup_date_not_in_past(cls, v: date) -> date:
+        """pickup_date는 오늘 이전 날짜는 거부 (오늘 포함 과거 거부)"""
+        today = date.today()
+        if v <= today:
+            raise ValueError("pickup_date는 오늘 이전 날짜일 수 없습니다")
+        return v
+
+    @model_validator(mode="after")
+    def check_total_quantity(self) -> "RequestUpdate":
+        total = self.electric_bed_quantity + self.wheelchair_quantity + self.other_small_quantity
+        if total < 1:
+            raise ValueError("전체 수량 합계가 1 이상이어야 합니다")
+        return self
+
+
 class RequestOut(BaseModel):
     id: int
     request_no: str

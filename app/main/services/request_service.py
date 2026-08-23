@@ -1,10 +1,10 @@
-"""Request 생성 서비스"""
+"""Request 생성/수정 서비스"""
 
 from sqlalchemy.orm import Session
 from sqlalchemy import text
 from datetime import datetime, timezone
 from app.main.models.models import Request, RequestStatus, RequestStatusHistory, PickupLocationType
-from app.main.schemas.request import RequestCreate
+from app.main.schemas.request import RequestCreate, RequestUpdate
 
 
 def _get_next_request_no(db: Session) -> str:
@@ -72,4 +72,32 @@ def create_request(db: Session, data: RequestCreate) -> Request:
     db.add(history)
     db.commit()
 
+    return request
+
+
+def update_request(db: Session, request_id: int, data: RequestUpdate) -> Request:
+    """수정 - RECEIVED 상태의 접수만 수정 가능.
+
+    실패 시 ValueError:
+      - 접수 미존재
+      - 현재 상태가 RECEIVED가 아닌 경우
+    """
+    request = db.get(Request, request_id)
+    if request is None:
+        raise ValueError(f"존재하지 않는 접수: id={request_id}")
+    if request.current_status != RequestStatus.RECEIVED:
+        raise ValueError(
+            f"수정 불가: 현재 상태는 {request.current_status} (수정 가능 상태는 RECEIVED만 허용)"
+        )
+
+    # 수정 가능 필드만 갱신 (business_office_id는 수정 불가)
+    request.pickup_date = data.pickup_date
+    request.pickup_location_type = data.pickup_location_type
+    request.pickup_address = data.pickup_address
+    request.electric_bed_quantity = data.electric_bed_quantity
+    request.wheelchair_quantity = data.wheelchair_quantity
+    request.other_small_quantity = data.other_small_quantity
+    request.updated_at = datetime.now(timezone.utc)
+
+    db.commit()
     return request
