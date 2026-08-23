@@ -1,0 +1,29 @@
+[project]
+name = "ju-prototype"
+version = "0.1.0"
+description = "복지용구 위탁소독 1단계 프로토타입 — FastAPI + SQLAlchemy + SQLite"
+requires-python = ">=3.11"
+dependencies = [
+    "fastapi>=0.115.0",
+    "uvicorn[standard]>=0.32.0",
+    "sqlalchemy>=2.0.0",
+    "alembic>=1.14.0",
+    "pydantic>=2.0.0",
+    "jinja2>=3.1.0",
+    "python-multipart>=0.0.9",
+    "reportlab>=4.2.0",
+    "openpyxl>=3.1.0",
+    "pytest>=8.0.0",
+    "httpx>=0.28.0",
+]
+
+[build-system]
+requires = ["setuptools>=68.0"]
+build-backend = "setuptools.build_meta"
+
+[tool.setuptools.packages.find]
+where = ["."]
+include = ["app*"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
