@@ -3,6 +3,7 @@
 from datetime import date
 
 from fastapi import APIRouter, Depends, HTTPException, Query, status
+from fastapi.responses import FileResponse
 from sqlalchemy.orm import Session
 from sqlalchemy.orm.exc import StaleDataError
 from app.main.db.session import SessionLocal
@@ -21,6 +22,7 @@ from app.main.services.request_service import (
     list_requests,
     get_request,
 )
+from app.main.services.pdf_service import generate_request_pdf
 
 router = APIRouter(prefix="/api/requests", tags=["requests"])
 
@@ -134,3 +136,34 @@ def get_request_detail(request_id: int, db: Session = Depends(get_db)):
             detail=f"존재하지 않는 접수: id={request_id}",
         )
     return request
+
+
+@router.get("/{request_id}/pdf")
+def download_request_pdf(request_id: int, db: Session = Depends(get_db)):
+    """소독완료 이후 PDF 다운로드.
+
+    서버가 요청 시점에 DB에서 현재 상태를 재조회해 판단한다.
+    - 미존재: 404
+    - RECEIVED / PICKED_UP: 409 거부
+    - DISINFECTED / DELIVERED: 200 + application/pdf (runtime/pdf/ 생성)
+    """
+    request = get_request(db, request_id)
+    if request is None:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail=f"존재하지 않는 접수: id={request_id}",
+        )
+    if request.current_status not in (RequestStatus.DISINFECTED, RequestStatus.DELIVERED):
+        raise HTTPException(
+            status_code=status.HTTP_409_CONFLICT,
+            detail=(
+                f"PDF 다운로드 불가: 현재 상태는 {request.current_status.value} "
+                f"(소독완료/배달완료 이후에만 다운로드 가능)"
+            ),
+        )
+    path = generate_request_pdf(request)
+    return FileResponse(
+        path,
+        media_type="application/pdf",
+        filename=f"{request.request_no}.pdf",
+    )
