@@ -1,6 +1,7 @@
 """Request 생성/수정 서비스"""
 
 from sqlalchemy.orm import Session
+from sqlalchemy.orm.exc import StaleDataError
 from sqlalchemy import text, select, func
 from datetime import datetime, timezone
 from app.main.models.models import Request, RequestStatus, RequestStatusHistory, PickupLocationType
@@ -168,6 +169,13 @@ def transition_request_status(db: Session, request_id: int, target_status: Reque
 
     request.updated_at = now
 
-    # 상태 변경 + 이력 추가를 하나의 커밋으로 처리
-    db.commit()
+    # 상태 변경 + 이력 추가를 하나의 커밋으로 처리.
+    # commit 중 StaleDataError(동시 수정 충돌) 발생 시 세션 상태를 정리(rollback)한 뒤
+    # 예외를 호출자에게 그대로 전달한다. 자동 재시도는 하지 않는다(DEC-007 재시도 안내 방식).
+    try:
+        db.commit()
+    except StaleDataError:
+        db.rollback()
+        raise
+
     return request

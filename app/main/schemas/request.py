@@ -2,7 +2,7 @@
 
 from datetime import date, datetime
 from pydantic import BaseModel, Field, field_validator, model_validator
-from app.main.models.models import PickupLocationType
+from app.main.models.models import PickupLocationType, RequestStatus
 
 
 class RequestCreate(BaseModel):
@@ -55,6 +55,11 @@ class RequestUpdate(BaseModel):
         if total < 1:
             raise ValueError("전체 수량 합계가 1 이상이어야 합니다")
         return self
+
+
+class RequestStatusTransition(BaseModel):
+    """상태 전이 요청 (바로 다음 상태만 허용)"""
+    target_status: RequestStatus
 
 
 class RequestOut(BaseModel):
