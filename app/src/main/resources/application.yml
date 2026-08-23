@@ -1,0 +1,33 @@
+spring:
+  application:
+    name: ju-project
+  datasource:
+    url: jdbc:h2:file:runtime/db/ju-project;AUTO_SERVER=TRUE
+    username: sa
+    password:
+    driver-class-name: org.h2.Driver
+  jpa:
+    hibernate:
+      ddl-auto: none
+    open-in-view: false
+    properties:
+      h2:
+        db:
+          settings:
+            trace: false
+  h2:
+    console:
+      enabled: true
+      path: /h2-console
+
+flyway:
+  enabled: true
+  locations: classpath:db/migration
+
+server:
+  port: 8080
+
+logging:
+  level:
+    org.flywaydb: DEBUG
+    org.hibernate: INFO
