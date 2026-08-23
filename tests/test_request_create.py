@@ -8,7 +8,7 @@ from sqlalchemy.orm import sessionmaker
 from datetime import date, datetime, timezone
 
 from app.main.db.base import Base
-from app.main.models.models import Request, RequestStatusHistory, BusinessOffice, RequestStatus, PickupLocationType
+from app.main.models.models import Request, RequestStatusHistory, BusinessOffice, RequestStatus, PickupLocationType, RequestNoCounter
 from app.main.schemas.request import RequestCreate
 from app.main.services.request_service import create_request
 
@@ -27,7 +27,11 @@ def test_db():
     db.add(BusinessOffice(code="OFFICE_B", name="부산사업소", created_at=now))
     db.add(BusinessOffice(code="OFFICE_C", name="제주사업소", created_at=now))
     db.commit()
-    
+
+    # 카운터 테이블 초기화 (id=1, current_value=0)
+    db.add(RequestNoCounter(id=1, current_value=0))
+    db.commit()
+
     yield db
     
     db.close()
