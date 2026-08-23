@@ -84,3 +84,18 @@ class RequestListOut(BaseModel):
     """목록 조회 응답 (필터된 항목 + 전체 개수)."""
     items: list[RequestOut]
     total: int
+
+
+class StatisticsOut(BaseModel):
+    """통계 집계 응답 (WP-10).
+
+    - total_requests: 필터 적용 대상 건수 (목록 API의 total과 동일)
+    - by_business_office: 필터 결과에 실제 존재하는 사업소만 포함
+      (키: 사업소 id 문자열, 값: 건수)
+    - by_status: 네 상태 키를 항상 포함 (0건이어도 유지)
+    - quantities: 품목별 수량 합계 + total
+    """
+    total_requests: int = 0
+    by_business_office: dict[str, int] = {}
+    by_status: dict[str, int] = {}
+    quantities: dict[str, int] = {}

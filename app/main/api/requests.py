@@ -14,6 +14,7 @@ from app.main.schemas.request import (
     RequestOut,
     RequestListOut,
     RequestStatusTransition,
+    StatisticsOut,
 )
 from app.main.services.request_service import (
     create_request,
@@ -21,10 +22,12 @@ from app.main.services.request_service import (
     transition_request_status,
     list_requests,
     get_request,
+    get_statistics_summary,
 )
 from app.main.services.pdf_service import generate_request_pdf
 
-router = APIRouter(prefix="/api/requests", tags=["requests"])
+# prefix 없는 라우터: /api/requests 계열과 /api/statistics를 같은 모듈에 둔다.
+router = APIRouter(tags=["requests"])
 
 
 def get_db():
@@ -36,7 +39,7 @@ def get_db():
         db.close()
 
 
-@router.post("", response_model=RequestOut, status_code=status.HTTP_201_CREATED)
+@router.post("/api/requests", response_model=RequestOut, status_code=status.HTTP_201_CREATED)
 def create_new_request(data: RequestCreate, db: Session = Depends(get_db)):
     """새 접수 생성"""
     try:
@@ -50,7 +53,7 @@ def create_new_request(data: RequestCreate, db: Session = Depends(get_db)):
         )
 
 
-@router.patch("/{request_id}", response_model=RequestOut)
+@router.patch("/api/requests/{request_id}", response_model=RequestOut)
 def patch_request(request_id: int, data: RequestUpdate, db: Session = Depends(get_db)):
     """RECEIVED 상태 접수 수정 (200 성공, ValueError → 409, 그 외 → 500)"""
     try:
@@ -67,7 +70,7 @@ def patch_request(request_id: int, data: RequestUpdate, db: Session = Depends(ge
         )
 
 
-@router.patch("/{request_id}/status", response_model=RequestOut)
+@router.patch("/api/requests/{request_id}/status", response_model=RequestOut)
 def patch_request_status(
     request_id: int,
     data: RequestStatusTransition,
@@ -98,7 +101,7 @@ def patch_request_status(
         )
 
 
-@router.get("", response_model=RequestListOut)
+@router.get("/api/requests", response_model=RequestListOut)
 def get_requests(
     pickup_date_from: date | None = Query(default=None),
     pickup_date_to: date | None = Query(default=None),
@@ -126,7 +129,7 @@ def get_requests(
     return {"items": items, "total": len(items)}
 
 
-@router.get("/{request_id}", response_model=RequestOut)
+@router.get("/api/requests/{request_id}", response_model=RequestOut)
 def get_request_detail(request_id: int, db: Session = Depends(get_db)):
     """접수 상세 조회 (미존재: 404)"""
     request = get_request(db, request_id)
@@ -138,7 +141,7 @@ def get_request_detail(request_id: int, db: Session = Depends(get_db)):
     return request
 
 
-@router.get("/{request_id}/pdf")
+@router.get("/api/requests/{request_id}/pdf")
 def download_request_pdf(request_id: int, db: Session = Depends(get_db)):
     """소독완료 이후 PDF 다운로드.
 
@@ -166,4 +169,32 @@ def download_request_pdf(request_id: int, db: Session = Depends(get_db)):
         path,
         media_type="application/pdf",
         filename=f"{request.request_no}.pdf",
+    )
+
+
+@router.get("/api/statistics", response_model=StatisticsOut)
+def get_statistics(
+    pickup_date_from: date | None = Query(default=None),
+    pickup_date_to: date | None = Query(default=None),
+    business_office_id: int | None = Query(default=None, gt=0),
+    current_status: RequestStatus | None = Query(default=None),
+    db: Session = Depends(get_db),
+):
+    """통계 집계 (WP-10).
+
+    목록 API와 동일한 필터(pickup_date 기간 + 사업소 + 상태, AND 결합)를
+    재사용한다. from > to 는 422로 거부.
+    """
+    if pickup_date_from is not None and pickup_date_to is not None:
+        if pickup_date_from > pickup_date_to:
+            raise HTTPException(
+                status_code=status.HTTP_422_UNPROCESSABLE_ENTITY,
+                detail="pickup_date_from이 pickup_date_to보다 늦을 수 없습니다",
+            )
+    return get_statistics_summary(
+        db,
+        pickup_date_from=pickup_date_from,
+        pickup_date_to=pickup_date_to,
+        business_office_id=business_office_id,
+        current_status=current_status,
     )

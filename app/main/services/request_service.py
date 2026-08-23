@@ -211,3 +211,60 @@ def list_requests(
         stmt = stmt.where(Request.current_status == current_status)
     stmt = stmt.order_by(Request.pickup_date.asc(), Request.id.asc())
     return db.execute(stmt).scalars().all()
+
+
+def get_statistics_summary(
+    db: Session,
+    pickup_date_from: date | None = None,
+    pickup_date_to: date | None = None,
+    business_office_id: int | None = None,
+    current_status: RequestStatus | None = None,
+) -> dict:
+    """통계 집계 (WP-10).
+
+    목록 API와 동일한 행 집합을 보장하기 위해 list_requests()를 그대로
+    재사용해 필터를 적용한 뒤, 결과 행을 메모리에서 집계한다.
+    (별도의 집계 쿼리/임의 집계 없음)
+
+    반환 구조:
+      - total_requests: 대상 건수
+      - by_business_office: {사업소 id(문자열): 건수} — 실제 존재하는 사업소만
+      - by_status: 네 상태 키 항상 포함 (0건이어도)
+      - quantities: {electric_bed, wheelchair, other_small, total}
+    """
+    rows = list_requests(
+        db,
+        pickup_date_from=pickup_date_from,
+        pickup_date_to=pickup_date_to,
+        business_office_id=business_office_id,
+        current_status=current_status,
+    )
+
+    by_business_office: dict[str, int] = {}
+    by_status: dict[str, int] = {status.value: 0 for status in RequestStatus}
+    quantities = {
+        "electric_bed": 0,
+        "wheelchair": 0,
+        "other_small": 0,
+        "total": 0,
+    }
+
+    for req in rows:
+        by_business_office[str(req.business_office_id)] = (
+            by_business_office.get(str(req.business_office_id), 0) + 1
+        )
+        by_status[req.current_status.value] = by_status.get(req.current_status.value, 0) + 1
+        quantities["electric_bed"] += req.electric_bed_quantity
+        quantities["wheelchair"] += req.wheelchair_quantity
+        quantities["other_small"] += req.other_small_quantity
+
+    quantities["total"] = (
+        quantities["electric_bed"] + quantities["wheelchair"] + quantities["other_small"]
+    )
+
+    return {
+        "total_requests": len(rows),
+        "by_business_office": by_business_office,
+        "by_status": by_status,
+        "quantities": quantities,
+    }
