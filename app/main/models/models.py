@@ -40,7 +40,7 @@ class Request(Base):
     business_office_id = Column(Integer, ForeignKey("business_offices.id"), nullable=False)
     pickup_date = Column(Date, nullable=False)
     pickup_location_type = Column(
-        SAEnum(PickupLocationType, native_enum=False, length=10, validate_strings=True),
+        SAEnum(PickupLocationType, native_enum=False, length=10, validate_strings=True, values_callable=lambda x: [e.value for e in x]),
         nullable=False,
     )
     pickup_address = Column(String(255), nullable=False)
