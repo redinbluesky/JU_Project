@@ -1,0 +1,55 @@
+/* Wanted Design System — typefaces.
+   The source .fig references "Pretendard JP" (the UI face, 95% of all text),
+   "Wanted Sans" / "Wanted Sans Variable" (the brand/display face used in the
+   logotype and marketing headlines), and Apple system faces (SF Pro Text,
+   SF Mono) inside device chrome mockups.
+
+   No binaries ship inside a .fig, so these @font-face rules pull the two real
+   families from their public CDN builds. Drop self-hosted .woff2 files into
+   assets/fonts/ and re-point the src if you need offline/production hosting. */
+
+/* Pretendard JP — variable, 45..920. Primary UI face. */
+@font-face {
+  font-family: "Pretendard JP";
+  font-weight: 45 920;
+  font-style: normal;
+  font-display: swap;
+  src: url("https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/packages/pretendard-jp/dist/web/variable/woff2/PretendardJPVariable.woff2") format("woff2-variations");
+}
+
+/* Pretendard — Latin-first sibling, used in a couple of places in the file. */
+@font-face {
+  font-family: "Pretendard";
+  font-weight: 45 920;
+  font-style: normal;
+  font-display: swap;
+  src: url("https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/variable/woff2/PretendardVariable.woff2") format("woff2-variations");
+}
+
+/* Wanted Sans — the brand face. Variable build covers 400..900. */
+@font-face {
+  font-family: "Wanted Sans";
+  font-weight: 400 900;
+  font-style: normal;
+  font-display: swap;
+  src: url("https://cdn.jsdelivr.net/gh/wanteddev/wanted-sans@v1.0.3/packages/wanted-sans/fonts/webfonts/variable/split/WantedSansVariable.woff2") format("woff2-variations");
+}
+@font-face {
+  font-family: "Wanted Sans Variable";
+  font-weight: 400 900;
+  font-style: normal;
+  font-display: swap;
+  src: url("https://cdn.jsdelivr.net/gh/wanteddev/wanted-sans@v1.0.3/packages/wanted-sans/fonts/webfonts/variable/split/WantedSansVariable.woff2") format("woff2-variations");
+}
+
+:root {
+  --font-ui: "Pretendard JP", "Pretendard", -apple-system, BlinkMacSystemFont, system-ui, "Segoe UI", "Helvetica Neue", "Apple SD Gothic Neo", "Malgun Gothic", sans-serif;
+  --font-brand: "Wanted Sans", "Wanted Sans Variable", "Pretendard JP", -apple-system, sans-serif;
+  --font-mono: "SF Mono", ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+
+  --font-weight-regular: 400;
+  --font-weight-medium: 500;
+  --font-weight-semibold: 600;
+  --font-weight-bold: 700;
+  --font-weight-extrabold: 800;
+}

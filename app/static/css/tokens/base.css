@@ -1,0 +1,37 @@
+/* Wanted Design System — minimal base layer.
+   Sets the document defaults the .fig assumes: white page, Pretendard JP,
+   Body 1/Normal text, Label Normal ink. */
+
+*, *::before, *::after { box-sizing: border-box; }
+
+html { -webkit-text-size-adjust: 100%; }
+
+body {
+  margin: 0;
+  background: var(--wd-background-normal);
+  color: var(--wd-label-normal);
+  font-family: var(--font-ui);
+  font-size: var(--body-1-size);
+  line-height: var(--body-1-line);
+  letter-spacing: var(--body-1-tracking);
+  font-weight: var(--font-weight-medium);
+  -webkit-font-smoothing: antialiased;
+  text-rendering: optimizeLegibility;
+}
+
+a { color: var(--wd-primary); text-decoration: none; }
+a:hover { color: var(--wd-primary-strong); text-decoration: underline; }
+a:active { color: var(--wd-primary-heavy); }
+
+button, input, select, textarea { font: inherit; letter-spacing: inherit; color: inherit; }
+
+::selection { background: var(--wd-accent-blue-bg); color: var(--wd-primary-heavy); }
+
+/* Hairline that survives fractional device pixels — the system uses a
+   translucent inset ring rather than a `border`, so 1px never doubles up. */
+.wd-ring { box-shadow: var(--ring-neutral); }
+.wd-card {
+  background: var(--surface-card);
+  border-radius: var(--radius-xl);
+  box-shadow: var(--ring-alternative);
+}

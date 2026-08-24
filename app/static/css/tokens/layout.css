@@ -1,0 +1,101 @@
+/* Wanted Design System — spacing, radius, elevation, motion.
+   Values transcribed from the source .fig (Modal / Component / Frame Variable
+   collections plus measured component geometry). */
+
+:root {
+  /* ---- Spacing scale -------------------------------------------------- */
+  /* A 4-based ladder. 20 (not 24) is the workhorse page margin — that offset
+     is characteristic of the system and shows up in nearly every frame. */
+  --space-1: 2px;
+  --space-2: 4px;
+  --space-3: 6px;
+  --space-4: 8px;
+  --space-5: 10px;
+  --space-6: 12px;
+  --space-7: 16px;
+  --space-8: 20px;
+  --space-9: 24px;
+  --space-10: 32px;
+  --space-11: 40px;
+  --space-12: 48px;
+  --space-13: 64px;
+
+  /* Named margins straight out of the Figma Variable collections */
+  --margin-page: 20px;              /* Value/Margin/Platform */
+  --margin-navigation: 20px;        /* Margin/Navigation/Normal */
+  --margin-navigation-h: 16px;      /* Margin/Navigation/Horizontal */
+  --margin-navigation-text: 4px;
+  --margin-navigation-tool-tab: 12px;
+  --margin-content: 20px;           /* Margin/Content/Content */
+  --margin-action-h: 20px;
+  --margin-action-v: 20px;
+  --margin-action-contents-bottom: 4px;
+  --gap-normal: 16px;               /* Value/Space/Gap/Normal */
+  --padding-card-tiny: 4px;
+
+  /* Breakpoints (Value/Width/Viewport) */
+  --viewport-lg: 1100px; /* @kind spacing */
+  --viewport-xl: 1440px; /* @kind spacing */
+
+  /* ---- Radius --------------------------------------------------------- */
+  /* Radius scales WITH component size rather than being one global value:
+     small controls 8, medium 10, large 12, sheets 16, modals 20+. */
+  --radius-xs: 4px;
+  --radius-sm: 6px;
+  --radius-md: 8px;
+  --radius-lg: 10px;
+  --radius-xl: 12px;
+  --radius-2xl: 14px;   /* Frame/Radius alt */
+  --radius-3xl: 16px;   /* menus, elevated sheets */
+  --radius-4xl: 20px;
+  --radius-frame: 12px; /* Frame/Radius */
+  --radius-modal: 12px; /* Modal/Radius */
+  --radius-full: 9999px;
+
+  /* ---- Elevation ------------------------------------------------------ */
+  /* The system is border-first: almost every "card" is a hairline INSET ring,
+     not a drop shadow. Drop shadows are reserved for genuinely floating layers
+     and are extremely soft. */
+  --ring-alternative: inset 0 0 0 1px rgba(112,115,124,0.08); /* @kind shadow */
+  --ring-neutral: inset 0 0 0 1px rgba(112,115,124,0.16); /* @kind shadow */
+  --ring-normal: inset 0 0 0 1px rgba(112,115,124,0.22); /* @kind shadow */
+  --ring-focus: inset 0 0 0 2px var(--wd-primary); /* @kind shadow */
+
+  --elevation-1: 0 1px 2px 0 rgba(0,0,0,0.03); /* @kind shadow */
+  --elevation-2: inset 0 0 0 1px var(--wd-line-solid-neutral), 0 1px 2px 0 rgba(0,0,0,0.04); /* @kind shadow */
+  --elevation-3: 0 2px 8px 0 rgba(23,23,23,0.06), 0 0 1px 0 rgba(23,23,23,0.07); /* @kind shadow */
+  --elevation-4: 0 6px 16px 0 rgba(23,23,23,0.1), 0 0 1px 0 rgba(23,23,23,0.07); /* @kind shadow */
+  --elevation-5: 0 12px 32px 0 rgba(0,0,0,0.12), 0 0 1px 0 rgba(0,0,0,0.08); /* @kind shadow */
+
+  /* ---- Interaction overlays ------------------------------------------ */
+  /* Hover/press are a --wd-label-normal veil laid over the component at a
+     fixed opacity. Three intensities exist; pick by surface contrast.
+     Light  → for coloured / saturated surfaces
+     Normal → default for neutral surfaces
+     Strong → for solid primary surfaces */
+  --overlay-color: var(--wd-label-normal); /* @kind color */
+  --overlay-light-hover: 0.038; /* @kind other */
+  --overlay-light-focus: 0.06; /* @kind other */
+  --overlay-light-press: 0.09; /* @kind other */
+  --overlay-normal-hover: 0.05; /* @kind other */
+  --overlay-normal-focus: 0.08; /* @kind other */
+  --overlay-normal-press: 0.12; /* @kind other */
+  --overlay-strong-hover: 0.075; /* @kind other */
+  --overlay-strong-focus: 0.12; /* @kind other */
+  --overlay-strong-press: 0.18; /* @kind other */
+
+  /* Dimmer behind modals and bottom sheets */
+  --dimmer: rgba(0,0,0,0.52); /* @kind color */
+  --blur-tooltip: blur(64px); /* @kind other */
+  --blur-chrome: blur(20px); /* @kind other */
+
+  /* ---- Motion --------------------------------------------------------- */
+  /* Short, restrained, ease-out. Nothing bounces. */
+  --duration-instant: 80ms; /* @kind other */
+  --duration-fast: 140ms; /* @kind other */
+  --duration-normal: 200ms; /* @kind other */
+  --duration-slow: 320ms; /* @kind other */
+  --ease-out: cubic-bezier(0.22, 1, 0.36, 1); /* @kind other */
+  --ease-in-out: cubic-bezier(0.4, 0, 0.2, 1); /* @kind other */
+  --ease-standard: cubic-bezier(0.25, 0.1, 0.25, 1); /* @kind other */
+}

@@ -1,0 +1,127 @@
+/* Wanted Design System — semantic colour aliases.
+
+   tokens/fig-tokens.css is the raw, verbatim export of all 488 Figma Variables
+   across 6 collections. Because several collections declare the same names, the
+   exporter disambiguates with -2/-3/-4 suffixes. This file is the CANONICAL,
+   suffix-free surface: it is what components and designs should reference.
+
+   Values are the light/Bright default. Dark equivalents live in the
+   [data-theme="dark"] scope of fig-tokens.css and are re-aliased at the bottom
+   of this file.
+
+   Reading the system:
+   • Label/*   — foreground text and icons, expressed as alpha over the page.
+   • Line/*    — hairline borders. Normal/* are translucent, Solid/* are opaque.
+   • Fill/*    — translucent neutral surfaces for chips, wells, secondary buttons.
+   • Background/* — page and sheet surfaces. Elevated is for floating layers.
+   • Status/*  — positive / negative / cautionary only. No "warning" or "info".
+   • Accent/*  — a 12-hue set used for categorisation, always as a
+                 pale Background + a saturated Foreground pair. */
+
+:root {
+  /* ---- Brand / primary ------------------------------------------------ */
+  --wd-primary: rgb(0,102,255);            /* Blue 50 — the single brand blue */
+  --wd-primary-strong: rgb(0,94,235);      /* Blue 45 — hover / pressed */
+  --wd-primary-heavy: rgb(0,84,209);       /* Blue 40 — text on pale blue */
+  --wd-primary-alt: rgb(51,102,255);       /* Theme-collection primary */
+
+  /* ---- Foreground (labels) ------------------------------------------- */
+  --wd-label-strong: rgb(0,0,0);           /* max-contrast headings */
+  --wd-label-normal: rgb(23,23,23);        /* default body + titles */
+  --wd-label-neutral: rgba(46,47,51,0.88); /* slightly recessed body */
+  --wd-label-alternative: rgba(55,56,60,0.61); /* secondary / meta */
+  --wd-label-assistive: rgba(55,56,60,0.28);   /* placeholder, hints */
+  --wd-label-disable: rgba(55,56,60,0.16);     /* disabled text */
+
+  /* ---- Surfaces ------------------------------------------------------- */
+  --wd-background-normal: rgb(255,255,255);
+  --wd-background-alternative: rgb(247,247,248);   /* Cool Neutral 99 — page tint */
+  --wd-background-elevated: rgb(255,255,255);       /* sheets, menus, cards */
+  --wd-background-transparent: rgba(255,255,255,0.08);
+  --wd-background-transparent-alt: rgba(255,255,255,0.28);
+
+  /* ---- Neutral fills (translucent, stack safely on any surface) ------- */
+  --wd-fill-alternative: rgba(112,115,124,0.05);
+  --wd-fill-normal: rgba(112,115,124,0.08);
+  --wd-fill-strong: rgba(112,115,124,0.16);
+
+  /* ---- Lines ---------------------------------------------------------- */
+  --wd-line-alternative: rgba(112,115,124,0.08);
+  --wd-line-neutral: rgba(112,115,124,0.16);
+  --wd-line-normal: rgba(112,115,124,0.22);
+  --wd-line-strong: rgba(112,115,124,0.52);
+  --wd-line-solid-alternative: rgb(244,244,245); /* Cool Neutral 98 */
+  --wd-line-solid-neutral: rgb(240,240,242);     /* Cool Neutral 97 */
+  --wd-line-solid-normal: rgb(235,235,237);      /* Cool Neutral 96 */
+  --wd-line-solid-strong: rgb(194,196,200);      /* Cool Neutral 80 */
+
+  /* ---- Inverse (dark chips, tooltips, toasts on light pages) ---------- */
+  --wd-inverse-background: rgb(27,28,30);   /* Cool Neutral 15 */
+  --wd-inverse-label: rgb(247,247,248);     /* Cool Neutral 99 */
+  --wd-inverse-primary: rgb(51,133,255);    /* Blue 60 */
+
+  /* ---- Interaction ---------------------------------------------------- */
+  --wd-interaction-disable: rgb(244,244,245);  /* disabled surface */
+  --wd-interaction-inactive: rgb(174,176,182); /* inactive control */
+
+  /* ---- Static (never inverts with theme) ------------------------------ */
+  --wd-static-white: rgb(255,255,255);
+  --wd-static-black: rgb(0,0,0);
+
+  /* ---- Status --------------------------------------------------------- */
+  --wd-status-positive: rgb(0,191,64);
+  --wd-status-negative: rgb(255,66,66);
+  --wd-status-cautionary: rgb(255,158,0);
+
+  /* ---- Accents: 12 categorisation hues, pale bg + saturated fg -------- */
+  --wd-accent-red-bg: rgb(255,236,236);        --wd-accent-red-fg: rgb(209,0,0);
+  --wd-accent-red-orange-bg: rgb(255,238,232); --wd-accent-red-orange-fg: rgb(230,80,0);
+  --wd-accent-orange-bg: rgb(255,242,224);     --wd-accent-orange-fg: rgb(196,113,0);
+  --wd-accent-lime-bg: rgb(240,250,222);       --wd-accent-lime-fg: rgb(83,120,0);
+  --wd-accent-green-bg: rgb(224,250,232);      --wd-accent-green-fg: rgb(0,153,51);
+  --wd-accent-cyan-bg: rgb(222,248,251);       --wd-accent-cyan-fg: rgb(0,152,178);
+  --wd-accent-light-blue-bg: rgb(226,243,255); --wd-accent-light-blue-fg: rgb(0,141,217);
+  --wd-accent-blue-bg: rgb(234,242,254);       --wd-accent-blue-fg: rgb(0,94,235);
+  --wd-accent-violet-bg: rgb(240,236,254);     --wd-accent-violet-fg: rgb(101,65,242);
+  --wd-accent-purple-bg: rgb(247,235,255);     --wd-accent-purple-fg: rgb(151,71,255);
+  --wd-accent-pink-bg: rgb(255,235,247);       --wd-accent-pink-fg: rgb(214,51,143);
+
+  /* ---- Convenience text/surface roles -------------------------------- */
+  --text-heading: var(--wd-label-strong);
+  --text-body: var(--wd-label-normal);
+  --text-muted: var(--wd-label-alternative);
+  --text-placeholder: var(--wd-label-assistive);
+  --text-on-primary: var(--wd-static-white);
+  --surface-page: var(--wd-background-normal);
+  --surface-page-alt: var(--wd-background-alternative);
+  --surface-card: var(--wd-background-elevated);
+  --border-hairline: var(--wd-line-neutral);
+}
+
+:root[data-theme="dark"], .dark {
+  --wd-primary: rgb(51,133,255);
+  --wd-primary-strong: rgb(79,149,255);
+  --wd-primary-heavy: rgb(105,165,255);
+
+  --wd-label-strong: rgb(255,255,255);
+  --wd-label-normal: rgb(243,243,244);
+  --wd-label-neutral: rgba(238,239,241,0.88);
+  --wd-label-alternative: rgba(233,234,236,0.61);
+  --wd-label-assistive: rgba(233,234,236,0.28);
+  --wd-label-disable: rgba(233,234,236,0.16);
+
+  --wd-background-normal: rgb(23,23,25);
+  --wd-background-alternative: rgb(27,28,30);
+  --wd-background-elevated: rgb(37,38,41);
+
+  --wd-line-solid-alternative: rgb(37,38,41);
+  --wd-line-solid-neutral: rgb(46,47,51);
+  --wd-line-solid-normal: rgb(55,56,60);
+  --wd-line-solid-strong: rgb(112,115,124);
+
+  --wd-inverse-background: rgb(247,247,248);
+  --wd-inverse-label: rgb(27,28,30);
+
+  --wd-interaction-disable: rgb(37,38,41);
+  --wd-interaction-inactive: rgb(112,115,124);
+}

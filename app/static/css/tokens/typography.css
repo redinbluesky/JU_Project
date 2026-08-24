@@ -1,0 +1,61 @@
+/* Wanted Design System — the 19-step text scale, transcribed verbatim from the
+   Typography page of the source .fig. Every value (size, line-height, tracking)
+   is exact; do not round.
+
+   Two axes worth knowing:
+   • Optical tracking is *negative* above 18px and *positive* below it, so large
+     type tightens and small type opens up. This is the single most characteristic
+     thing about the system's text.
+   • Body and Label each have a Normal and a Reading line-height. Normal is for UI
+     rows and single lines; Reading is for multi-line prose.
+   Weight is a separate choice — Medium (500) for most UI text, SemiBold (600) for
+   emphasis and buttons, Bold (700) for Display/Title. */
+
+:root {
+  --display-1-size: 56px;   --display-1-line: 72px;  --display-1-tracking: -0.0319em;
+  --display-2-size: 40px;   --display-2-line: 52px;  --display-2-tracking: -0.0282em;
+  --display-3-size: 36px;   --display-3-line: 48px;  --display-3-tracking: -0.027em;
+
+  --title-1-size: 32px;     --title-1-line: 44px;    --title-1-tracking: -0.0253em;
+  --title-2-size: 28px;     --title-2-line: 38px;    --title-2-tracking: -0.0236em;
+  --title-3-size: 24px;     --title-3-line: 32px;    --title-3-tracking: -0.023em;
+
+  --heading-1-size: 22px;   --heading-1-line: 30px;  --heading-1-tracking: -0.0194em;
+  --heading-2-size: 20px;   --heading-2-line: 28px;  --heading-2-tracking: -0.012em;
+
+  --headline-1-size: 18px;  --headline-1-line: 26px; --headline-1-tracking: -0.002em;
+  --headline-2-size: 17px;  --headline-2-line: 24px; --headline-2-tracking: 0em;
+
+  --body-1-size: 16px;      --body-1-line: 24px;     --body-1-reading-line: 26px;  --body-1-tracking: 0.0057em;
+  --body-2-size: 15px;      --body-2-line: 22px;     --body-2-reading-line: 24px;  --body-2-tracking: 0.0096em;
+
+  --label-1-size: 14px;     --label-1-line: 20px;    --label-1-reading-line: 22px; --label-1-tracking: 0.0145em;
+  --label-2-size: 13px;     --label-2-line: 18px;    --label-2-tracking: 0.0194em;
+
+  --caption-1-size: 12px;   --caption-1-line: 16px;  --caption-1-tracking: 0.0252em;
+  --caption-2-size: 11px;   --caption-2-line: 14px;  --caption-2-tracking: 0.0311em;
+}
+
+/* Ready-to-use classes. Each sets family, size, line-height and tracking;
+   pick the weight separately (.wd-medium / .wd-semibold / .wd-bold). */
+.wd-display-1,.wd-display-2,.wd-display-3,.wd-title-1,.wd-title-2,.wd-title-3,.wd-heading-1,.wd-heading-2,.wd-headline-1,.wd-headline-2,.wd-body-1,.wd-body-1-reading,.wd-body-2,.wd-body-2-reading,.wd-label-1,.wd-label-1-reading,.wd-label-2,.wd-caption-1,.wd-caption-2{font-family:var(--font-ui);font-weight:500}
+.wd-display-1{font-size:var(--display-1-size);line-height:var(--display-1-line);letter-spacing:var(--display-1-tracking);font-weight:700}
+.wd-display-2{font-size:var(--display-2-size);line-height:var(--display-2-line);letter-spacing:var(--display-2-tracking);font-weight:700}
+.wd-display-3{font-size:var(--display-3-size);line-height:var(--display-3-line);letter-spacing:var(--display-3-tracking);font-weight:700}
+.wd-title-1{font-size:var(--title-1-size);line-height:var(--title-1-line);letter-spacing:var(--title-1-tracking);font-weight:700}
+.wd-title-2{font-size:var(--title-2-size);line-height:var(--title-2-line);letter-spacing:var(--title-2-tracking);font-weight:700}
+.wd-title-3{font-size:var(--title-3-size);line-height:var(--title-3-line);letter-spacing:var(--title-3-tracking);font-weight:700}
+.wd-heading-1{font-size:var(--heading-1-size);line-height:var(--heading-1-line);letter-spacing:var(--heading-1-tracking);font-weight:600}
+.wd-heading-2{font-size:var(--heading-2-size);line-height:var(--heading-2-line);letter-spacing:var(--heading-2-tracking);font-weight:600}
+.wd-headline-1{font-size:var(--headline-1-size);line-height:var(--headline-1-line);letter-spacing:var(--headline-1-tracking);font-weight:600}
+.wd-headline-2{font-size:var(--headline-2-size);line-height:var(--headline-2-line);letter-spacing:var(--headline-2-tracking);font-weight:600}
+.wd-body-1{font-size:var(--body-1-size);line-height:var(--body-1-line);letter-spacing:var(--body-1-tracking)}
+.wd-body-1-reading{font-size:var(--body-1-size);line-height:var(--body-1-reading-line);letter-spacing:var(--body-1-tracking)}
+.wd-body-2{font-size:var(--body-2-size);line-height:var(--body-2-line);letter-spacing:var(--body-2-tracking)}
+.wd-body-2-reading{font-size:var(--body-2-size);line-height:var(--body-2-reading-line);letter-spacing:var(--body-2-tracking)}
+.wd-label-1{font-size:var(--label-1-size);line-height:var(--label-1-line);letter-spacing:var(--label-1-tracking)}
+.wd-label-1-reading{font-size:var(--label-1-size);line-height:var(--label-1-reading-line);letter-spacing:var(--label-1-tracking)}
+.wd-label-2{font-size:var(--label-2-size);line-height:var(--label-2-line);letter-spacing:var(--label-2-tracking)}
+.wd-caption-1{font-size:var(--caption-1-size);line-height:var(--caption-1-line);letter-spacing:var(--caption-1-tracking)}
+.wd-caption-2{font-size:var(--caption-2-size);line-height:var(--caption-2-line);letter-spacing:var(--caption-2-tracking)}
+.wd-regular{font-weight:400}.wd-medium{font-weight:500}.wd-semibold{font-weight:600}.wd-bold{font-weight:700}
