@@ -1,0 +1,87 @@
+{% extends "base.html" %}
+{% block title %}통계 대시보드 — 복지용구 위탁소독{% endblock %}
+{% block content %}
+<section class="list-card" aria-labelledby="dashboard-title">
+  <div class="list-head">
+    <div>
+      <p class="detail-eyebrow">통계</p>
+      <h1 id="dashboard-title" class="wd-heading-1">통계 대시보드</h1>
+    </div>
+    <a class="btn-ghost" href="/admin/requests">목록으로 돌아가기</a>
+  </div>
+
+  <div class="detail-live" role="status" aria-live="polite"></div>
+
+  <form class="filter-bar" method="get" action="/admin/dashboard" aria-label="기간 필터">
+    <div class="filter-field">
+      <label for="pickup_date_from">시작일</label>
+      <input type="date" id="pickup_date_from" name="pickup_date_from"
+             value="{{ filters.pickup_date_from }}">
+    </div>
+    <div class="filter-field">
+      <label for="pickup_date_to">종료일</label>
+      <input type="date" id="pickup_date_to" name="pickup_date_to"
+             value="{{ filters.pickup_date_to }}">
+    </div>
+    <div class="filter-actions">
+      <button type="submit" class="btn-primary">적용</button>
+      <a class="btn-ghost" href="/admin/dashboard">초기화</a>
+    </div>
+  </form>
+
+  {% if stats.total_requests == 0 %}
+  <div class="empty-state">
+    <p class="empty-state__text">해당 기간의 접수 내역이 없습니다.</p>
+    <p class="empty-state__hint">기간을 조정하거나 필터를 초기화해 주세요.</p>
+  </div>
+  {% endif %}
+
+  <div class="detail-grid">
+    <article class="detail-panel">
+      <h2>전체 접수 건수</h2>
+      <dl class="detail-list">
+        <div><dt>총 접수 건수</dt><dd>{{ stats.total_requests }}건</dd></div>
+      </dl>
+    </article>
+
+    <article class="detail-panel">
+      <h2>품목 수량</h2>
+      <dl class="detail-list">
+        <div><dt>전동침대</dt><dd>{{ stats.quantities.electric_bed }}</dd></div>
+        <div><dt>휠체어</dt><dd>{{ stats.quantities.wheelchair }}</dd></div>
+        <div><dt>기타 소형</dt><dd>{{ stats.quantities.other_small }}</dd></div>
+        <div class="detail-total"><dt>전체 수량</dt><dd>{{ stats.quantities.total }}</dd></div>
+      </dl>
+    </article>
+
+    <article class="detail-panel">
+      <h2>사업소별 접수 건수</h2>
+      {% if stats.by_office %}
+      <dl class="detail-list">
+        {% for o in stats.by_office %}
+        <div><dt>{{ o.office_name }}</dt><dd>{{ o.count }}건</dd></div>
+        {% endfor %}
+      </dl>
+      {% else %}
+      <p class="empty-state__hint">해당 기간의 사업소 내역이 없습니다.</p>
+      {% endif %}
+    </article>
+
+    <article class="detail-panel">
+      <h2>상태별 접수 건수</h2>
+      <dl class="detail-list">
+        {% for s in stats.by_status %}
+        <div>
+          <dt>
+            <span class="status-badge status-{{ s.status|lower }}">
+              <span class="status-badge__dot" aria-hidden="true"></span>{{ s.label }}
+            </span>
+          </dt>
+          <dd>{{ s.count }}건</dd>
+        </div>
+        {% endfor %}
+      </dl>
+    </article>
+  </div>
+</section>
+{% endblock %}

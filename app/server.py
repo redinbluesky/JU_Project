@@ -14,7 +14,7 @@ from app.main.models.models import (
     RequestStatus,
     RequestStatusHistory,
 )
-from app.main.services.request_service import get_request
+from app.main.services.request_service import get_request, get_statistics_summary
 
 app = FastAPI(title="JU Prototype", version="0.1.0")
 
@@ -192,6 +192,73 @@ def admin_request_detail(request: Request, request_id: int):
             "can_download_pdf": status in (RequestStatus.DISINFECTED, RequestStatus.DELIVERED),
         }
     return templates.TemplateResponse(request, "requests/detail.html", {"item": detail})
+
+
+@app.get("/admin/dashboard", name="admin_dashboard")
+def admin_dashboard(
+    request: Request,
+    pickup_date_from: str | None = None,
+    pickup_date_to: str | None = None,
+):
+    """통계 대시보드 (WP-14-B3A).
+
+    기간 필터는 /api/statistics와 동일한 기준(pickup_date 기준 from/to,
+    기존 get_statistics_summary 서비스 재사용)을 따른다.
+    """
+    parsed_from: date | None = None
+    parsed_to: date | None = None
+    try:
+        if pickup_date_from:
+            parsed_from = date.fromisoformat(pickup_date_from)
+    except ValueError:
+        parsed_from = None
+    try:
+        if pickup_date_to:
+            parsed_to = date.fromisoformat(pickup_date_to)
+    except ValueError:
+        parsed_to = None
+
+    with SessionLocal() as db:
+        stats = get_statistics_summary(
+            db,
+            pickup_date_from=parsed_from,
+            pickup_date_to=parsed_to,
+        )
+        office_names = {
+            str(o.id): o.name for o in db.query(BusinessOffice).order_by(BusinessOffice.id).all()
+        }
+
+    # 사업소별 건수: id 정렬, 미등록 id는 안전하게 표시
+    by_office = []
+    for key in sorted(stats["by_business_office"], key=lambda k: int(k)):
+        by_office.append(
+            {
+                "office_id": key,
+                "office_name": office_names.get(key, f"사업소#{key}"),
+                "count": stats["by_business_office"][key],
+            }
+        )
+    by_status = [
+        {"status": s.value, "label": STATUS_LABELS[s.value], "count": stats["by_status"][s.value]}
+        for s in RequestStatus
+    ]
+
+    return templates.TemplateResponse(
+        request,
+        "dashboard/index.html",
+        {
+            "stats": {
+                "total_requests": stats["total_requests"],
+                "by_office": by_office,
+                "by_status": by_status,
+                "quantities": stats["quantities"],
+            },
+            "filters": {
+                "pickup_date_from": pickup_date_from or "",
+                "pickup_date_to": pickup_date_to or "",
+            },
+        },
+    )
 
 
 @app.get("/health")

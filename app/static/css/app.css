@@ -690,3 +690,34 @@ html, body {
     font-size: var(--label-2-size);
   }
 }
+
+/* =============================================================
+   WP-14-B3B — 통계 대시보드 보완
+   기존 Wanted 토큰과 정보 중심 컴포넌트만 사용한다.
+   ============================================================= */
+.list-card[aria-labelledby="dashboard-title"] {
+  min-width: 0;
+}
+
+.list-card[aria-labelledby="dashboard-title"] .detail-grid {
+  min-width: 0;
+}
+
+.list-card[aria-labelledby="dashboard-title"] .detail-panel {
+  min-width: 0;
+}
+
+.list-card[aria-labelledby="dashboard-title"] .detail-list dd {
+  font-weight: var(--font-weight-semibold);
+  overflow-wrap: anywhere;
+}
+
+@media (max-width: 720px) {
+  .list-card[aria-labelledby="dashboard-title"] .detail-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .list-card[aria-labelledby="dashboard-title"] .filter-bar {
+    min-width: 0;
+  }
+}
