@@ -12,7 +12,9 @@ from app.main.models.models import (
     BusinessOffice,
     Request as RequestModel,
     RequestStatus,
+    RequestStatusHistory,
 )
+from app.main.services.request_service import get_request
 
 app = FastAPI(title="JU Prototype", version="0.1.0")
 
@@ -31,31 +33,25 @@ STATUS_LABELS = {
     "DELIVERED": "배달완료",
 }
 
+NEXT_STATUS = {
+    RequestStatus.RECEIVED: RequestStatus.PICKED_UP,
+    RequestStatus.PICKED_UP: RequestStatus.DISINFECTED,
+    RequestStatus.DISINFECTED: RequestStatus.DELIVERED,
+}
+
 
 def _office_choices() -> list[dict]:
     """사업소 select 옵션 (DB 조회, 실패 시 빈 목록)."""
     try:
         with SessionLocal() as db:
-            rows = (
-                db.query(BusinessOffice)
-                .order_by(BusinessOffice.id)
-                .all()
-            )
-            return [
-                {"id": r.id, "code": r.code, "name": r.name}
-                for r in rows
-            ]
+            rows = db.query(BusinessOffice).order_by(BusinessOffice.id).all()
+            return [{"id": r.id, "code": r.code, "name": r.name} for r in rows]
     except Exception:
         return []
 
 
 def _list_rows(pickup_from=None, pickup_to=None, office_id=None, status=None):
-    """목록 화면 렌더링 데이터 (기존 list_requests 서비스 재사용).
-
-    - 기간: pickup_date >= from / <= to
-    - 정렬: pickup_date ASC, id ASC (API와 동일)
-    - 실패 시 빈 목록 (화면은 empty state로 안전하게 표시)
-    """
+    """목록 화면 렌더링 데이터 (기존 list_requests 서비스 재사용)."""
     try:
         with SessionLocal() as db:
             q = db.query(RequestModel)
@@ -77,11 +73,7 @@ def _list_rows(pickup_from=None, pickup_to=None, office_id=None, status=None):
                     "pickup_date": r.pickup_date.isoformat(),
                     "status": r.current_status.value,
                     "status_label": STATUS_LABELS[r.current_status.value],
-                    "total_qty": (
-                        r.electric_bed_quantity
-                        + r.wheelchair_quantity
-                        + r.other_small_quantity
-                    ),
+                    "total_qty": r.electric_bed_quantity + r.wheelchair_quantity + r.other_small_quantity,
                 }
                 for r in rows
             ]
@@ -97,7 +89,6 @@ def request_new_page(request: Request):
         "requests/new.html",
         {
             "offices": _office_choices(),
-            # API 검증: 수거희망일은 오늘 이후만 허용 → 오늘 다음 날이 최소값.
             "pickup_min": (date.today() + timedelta(days=1)).isoformat(),
         },
     )
@@ -111,11 +102,7 @@ def admin_requests_list(
     business_office_id: int | None = None,
     current_status: str | None = None,
 ):
-    """접수 목록 페이지 (WP-14-B2A).
-
-    서버 측 초기 렌더링: 같은 필터로 DB 조회 → 행을 Jinja2 템플릿에 넘긴다.
-    필터 파라미터는 그대로 쿼리스트링에 반영되어 재사용된다(링크/리프레시 안전).
-    """
+    """접수 목록 페이지 (WP-14-B2A)."""
     rows = _list_rows(
         pickup_from=pickup_date_from,
         pickup_to=pickup_date_to,
@@ -129,15 +116,11 @@ def admin_requests_list(
             "rows": rows,
             "offices": _office_choices(),
             "status_labels": STATUS_LABELS,
-            # 서버 렌더 기준 필터 값(빈 값은 None → input value 비어감)
             "pickup_date_from": pickup_date_from or "",
             "pickup_date_to": pickup_date_to or "",
             "business_office_id": business_office_id or "",
             "current_status": current_status or "",
-            # 필터가 적용되어 있는지(엑셀 링크에 같은 쿼리 붙이기용)
-            "has_filters": bool(
-                pickup_date_from or pickup_date_to or business_office_id or current_status
-            ),
+            "has_filters": bool(pickup_date_from or pickup_date_to or business_office_id or current_status),
             "export_url": _export_url(pickup_date_from, pickup_date_to, business_office_id, current_status),
         },
     )
@@ -155,6 +138,60 @@ def _export_url(pickup_date_from, pickup_date_to, office_id, status) -> str:
     if status:
         params.append(f"current_status={status}")
     return "/api/requests/export" + ("?" + "&".join(params) if params else "")
+
+
+@app.get("/admin/requests/{request_id}", name="admin_request_detail")
+def admin_request_detail(request: Request, request_id: int):
+    """접수 상세 화면 (WP-14-B2B)."""
+    with SessionLocal() as db:
+        item = get_request(db, request_id)
+        if item is None:
+            return templates.TemplateResponse(
+                request,
+                "requests/notfound.html",
+                {"request_id": request_id},
+                status_code=404,
+            )
+        office = db.get(BusinessOffice, item.business_office_id)
+        histories = (
+            db.query(RequestStatusHistory)
+            .filter(RequestStatusHistory.request_id == request_id)
+            .order_by(RequestStatusHistory.sequence.asc())
+            .all()
+        )
+        status = item.current_status
+        next_status = NEXT_STATUS.get(status)
+        detail = {
+            "id": item.id,
+            "request_no": item.request_no,
+            "office_name": office.name if office else f"사업소#{item.business_office_id}",
+            "pickup_date": item.pickup_date,
+            "pickup_location_type": item.pickup_location_type.value,
+            "pickup_address": item.pickup_address,
+            "electric_bed_quantity": item.electric_bed_quantity,
+            "wheelchair_quantity": item.wheelchair_quantity,
+            "other_small_quantity": item.other_small_quantity,
+            "total_quantity": item.electric_bed_quantity + item.wheelchair_quantity + item.other_small_quantity,
+            "status": status.value,
+            "status_label": STATUS_LABELS[status.value],
+            "created_at": item.created_at,
+            "updated_at": item.updated_at,
+            "completion_date": item.completion_date,
+            "histories": [
+                {
+                    "sequence": h.sequence,
+                    "status": h.status.value,
+                    "status_label": STATUS_LABELS[h.status.value],
+                    "changed_at": h.changed_at,
+                }
+                for h in histories
+            ],
+            "next_status": next_status.value if next_status else None,
+            "next_status_label": STATUS_LABELS[next_status.value] if next_status else None,
+            "can_edit": status is RequestStatus.RECEIVED,
+            "can_download_pdf": status in (RequestStatus.DISINFECTED, RequestStatus.DELIVERED),
+        }
+    return templates.TemplateResponse(request, "requests/detail.html", {"item": detail})
 
 
 @app.get("/health")

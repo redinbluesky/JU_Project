@@ -5,6 +5,38 @@
   "use strict";
 
   var form = document.getElementById("request-form");
+
+  var detailActions = document.querySelectorAll("[data-status-action]");
+  if (detailActions.length) {
+    detailActions.forEach(function (button) {
+      button.addEventListener("click", function () {
+        var statusBox = document.getElementById("detail-status") || document.getElementById("live-status");
+        var original = button.textContent;
+        button.disabled = true;
+        if (statusBox) statusBox.textContent = "상태를 변경하는 중입니다...";
+        fetch(button.getAttribute("data-status-url"), {
+          method: "PATCH",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ target_status: button.getAttribute("data-target-status") }),
+        }).then(function (res) {
+          if (!res.ok) {
+            return res.json().catch(function () { return {}; }).then(function (body) {
+              throw new Error(typeof body.detail === "string" ? body.detail : "상태 변경에 실패했습니다.");
+            });
+          }
+          return res.json();
+        }).then(function () {
+          if (statusBox) statusBox.textContent = "상태가 변경되었습니다. 화면을 새로 고칩니다.";
+          window.location.reload();
+        }).catch(function (error) {
+          if (statusBox) statusBox.textContent = error.message || "네트워크 오류가 발생했습니다.";
+          button.disabled = false;
+          button.textContent = original;
+        });
+      });
+    });
+  }
+
   if (!form) return;
 
   var liveStatus = document.getElementById("live-status");

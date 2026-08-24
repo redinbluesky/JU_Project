@@ -1,0 +1,87 @@
+{% extends "base.html" %}
+{% block title %}접수 상세 — {{ item.request_no }}{% endblock %}
+{% block content %}
+<section class="detail-card" aria-labelledby="detail-title">
+  <div class="detail-head">
+    <div>
+      <p class="detail-eyebrow">접수 상세</p>
+      <h1 id="detail-title" class="wd-heading-1">{{ item.request_no }}</h1>
+    </div>
+    <a class="btn-ghost" href="/admin/requests">목록으로 돌아가기</a>
+  </div>
+
+  <div id="detail-status" class="detail-live" role="status" aria-live="polite"></div>
+
+  <div class="detail-status-row">
+    <span class="detail-label">현재 상태</span>
+    <span class="status-badge status-{{ item.status|lower }}">
+      <span class="status-badge__dot" aria-hidden="true"></span>{{ item.status_label }}
+    </span>
+    {% if item.next_status %}
+    <button type="button" class="btn-primary detail-status-action"
+            data-status-action
+            data-status-url="/api/requests/{{ item.id }}/status"
+            data-target-status="{{ item.next_status }}"
+            data-target-label="{{ item.next_status_label }}">
+      {{ item.next_status_label }}로 변경
+    </button>
+    {% endif %}
+    {% if item.can_download_pdf %}
+    <a class="btn-ghost" href="/api/requests/{{ item.id }}/pdf">PDF 다운로드</a>
+    {% endif %}
+  </div>
+
+  <div class="detail-grid">
+    <article class="detail-panel">
+      <h2>접수 정보</h2>
+      <dl class="detail-list">
+        <div><dt>사업소명</dt><dd>{{ item.office_name }}</dd></div>
+        <div><dt>수거 희망일</dt><dd>{{ item.pickup_date }}</dd></div>
+        <div><dt>수거 장소 유형</dt><dd>{{ item.pickup_location_type }}</dd></div>
+        <div><dt>수거 주소</dt><dd>{{ item.pickup_address }}</dd></div>
+        <div><dt>생성일시</dt><dd>{{ item.created_at.strftime('%Y-%m-%d %H:%M') }}</dd></div>
+        <div><dt>수정일시</dt><dd>{{ item.updated_at.strftime('%Y-%m-%d %H:%M') }}</dd></div>
+        <div><dt>완료일</dt><dd>{{ item.completion_date or '-' }}</dd></div>
+      </dl>
+    </article>
+
+    <article class="detail-panel">
+      <h2>수량</h2>
+      <dl class="detail-quantity-list">
+        <div><dt>전동침대</dt><dd>{{ item.electric_bed_quantity }}</dd></div>
+        <div><dt>휠체어</dt><dd>{{ item.wheelchair_quantity }}</dd></div>
+        <div><dt>기타 소형</dt><dd>{{ item.other_small_quantity }}</dd></div>
+        <div class="detail-total"><dt>전체 수량</dt><dd>{{ item.total_quantity }}</dd></div>
+      </dl>
+    </article>
+  </div>
+
+  <article class="detail-panel detail-history">
+    <h2>상태 이력</h2>
+    {% if item.histories %}
+    <table class="history-table">
+      <thead><tr><th scope="col">순번</th><th scope="col">상태</th><th scope="col">변경일시</th></tr></thead>
+      <tbody>
+        {% for h in item.histories %}
+        <tr>
+          <td>{{ h.sequence }}</td>
+          <td><span class="status-badge status-{{ h.status|lower }}">{{ h.status_label }}</span></td>
+          <td>{{ h.changed_at.strftime('%Y-%m-%d %H:%M') }}</td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+    {% else %}
+    <p class="empty-state__text">상태 이력이 없습니다.</p>
+    {% endif %}
+  </article>
+
+  <div class="detail-actions">
+    {% if item.can_edit %}
+    <a class="btn-ghost" href="/requests/new?edit_id={{ item.id }}"
+       data-edit-url="/api/requests/{{ item.id }}">수정</a>
+    {% endif %}
+    <a class="btn-ghost" href="/admin/requests">목록으로 돌아가기</a>
+  </div>
+</section>
+{% endblock %}
