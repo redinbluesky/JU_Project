@@ -1,0 +1,66 @@
+{% extends "base.html" %}
+{% block title %}신규 접수 — 복지용구 위탁소독{% endblock %}
+{% block content %}
+<section class="form-card" aria-labelledby="form-title">
+  <h1 id="form-title" class="wd-heading-1">위탁소독 접수</h1>
+  <p class="wd-body-2 form-sub">수거를 원하시는 내용 아래에 입력해 주세요.</p>
+
+  <form id="request-form" action="/api/requests" method="post" novalidate>
+    <div class="form-field">
+      <label for="business_office_id">사업소</label>
+      <select id="business_office_id" name="business_office_id" required>
+        {% if offices %}
+          {% for office in offices %}
+          <option value="{{ office.id }}">{{ office.name }} ({{ office.code }})</option>
+          {% endfor %}
+        {% else %}
+          <option value="" disabled selected>사업소 정보가 없습니다</option>
+        {% endif %}
+      </select>
+    </div>
+
+    <div class="form-field">
+      <label for="pickup_date">수거 희망일</label>
+      <input type="date" id="pickup_date" name="pickup_date"
+             min="{{ pickup_min }}" required>
+    </div>
+
+    <div class="form-field">
+      <label for="pickup_location_type">장소 유형</label>
+      <select id="pickup_location_type" name="pickup_location_type" required>
+        <option value="사업소">사업소</option>
+        <option value="자택">자택</option>
+      </select>
+    </div>
+
+    <div class="form-field">
+      <label for="pickup_address">주소</label>
+      <input type="text" id="pickup_address" name="pickup_address"
+             maxlength="255" placeholder="수거 주소를 입력해 주세요" required>
+    </div>
+
+    <fieldset class="form-quantity">
+      <legend class="wd-heading-2">품목 수량</legend>
+      <div class="form-field">
+        <label for="electric_bed_quantity">전동침대 수량</label>
+        <input type="number" id="electric_bed_quantity" name="electric_bed_quantity"
+               min="0" step="1" value="0" required>
+      </div>
+      <div class="form-field">
+        <label for="wheelchair_quantity">휠체어 수량</label>
+        <input type="number" id="wheelchair_quantity" name="wheelchair_quantity"
+               min="0" step="1" value="0" required>
+      </div>
+      <div class="form-field">
+        <label for="other_small_quantity">기타 소품 수량</label>
+        <input type="number" id="other_small_quantity" name="other_small_quantity"
+               min="0" step="1" value="0" required>
+      </div>
+    </fieldset>
+
+    <div class="form-actions">
+      <button type="submit" class="btn-primary" id="submit-btn">접수하기</button>
+    </div>
+  </form>
+</section>
+{% endblock %}

@@ -1,0 +1,203 @@
+/* =============================================================
+   app.css — 복지용구 위탁소독 UI (WP-14-B1)
+   Wanted 토큰(tokens/*.css) 기반. 하드코딩 색상·그라데이션 금지.
+   ============================================================= */
+
+/* ---- 페이지 레이아웃 ---------------------------------------- */
+.app-header {
+  background: var(--surface-card);
+  box-shadow: var(--ring-alternative);
+}
+
+.app-header__inner {
+  max-width: var(--viewport-lg);
+  margin: 0 auto;
+  padding: var(--space-7) var(--margin-page); /* 16px 20px */
+  display: flex;
+  align-items: center;
+  gap: var(--space-4);
+}
+
+.app-header__brand {
+  color: var(--text-heading);
+}
+
+.app-main {
+  max-width: var(--viewport-lg);
+  margin: 0 auto;
+  padding: var(--space-8); /* 20px page margin */
+  min-height: calc(100vh - 60px);
+}
+
+/* ---- 카드 (border-first inset ring) -------------------------- */
+.form-card {
+  background: var(--surface-card);
+  border-radius: var(--radius-xl); /* 12px */
+  box-shadow: var(--ring-neutral);
+  padding: var(--space-8);
+  max-width: 560px;
+}
+
+.form-card h1 {
+  margin: 0 0 var(--space-2);
+  color: var(--text-heading);
+}
+
+.form-sub {
+  margin: 0 0 var(--space-8);
+  color: var(--text-muted);
+}
+
+/* ---- 폼 필드 -------------------------------------------------- */
+.form-field {
+  margin-bottom: var(--space-6); /* 12px, 4px rhythm */
+}
+
+.form-field label {
+  display: block;
+  margin-bottom: var(--space-2);
+  color: var(--text-body);
+  font-size: var(--label-1-size);
+  line-height: var(--label-1-line);
+  font-weight: var(--font-weight-medium);
+}
+
+.form-field input,
+.form-field select {
+  width: 100%;
+  min-height: 44px; /* hit area 44px+ */
+  padding: var(--space-3) var(--space-5); /* 6px 10px (높이 44px 확보) */
+  background: var(--surface-card);
+  color: var(--text-body);
+  border: 0;
+  border-radius: var(--radius-xl); /* 12px field radius */
+  box-shadow: var(--ring-normal); /* inset ring */
+  font-size: var(--body-2-size);
+  line-height: var(--body-2-line);
+  transition: box-shadow var(--duration-fast) var(--ease-standard);
+}
+
+.form-field input::placeholder {
+  color: var(--text-placeholder);
+}
+
+.form-field input:focus,
+.form-field select:focus {
+  outline: 0;
+  box-shadow: var(--ring-focus); /* 2px inset primary ring */
+}
+
+.form-field input:disabled,
+.form-field select:disabled {
+  background: var(--wd-interaction-disable);
+  color: var(--text-placeholder);
+}
+
+/* ---- 수량 fieldset ------------------------------------------- */
+.form-quantity {
+  border: 0;
+  margin: 0 0 var(--space-8);
+  padding: var(--space-8);
+  border-radius: var(--radius-lg);
+  background: var(--surface-page-alt);
+}
+
+.form-quantity legend {
+  margin: 0 0 var(--space-6);
+  padding: 0;
+  color: var(--text-heading);
+}
+
+.form-quantity .form-field {
+  margin-bottom: var(--space-6);
+}
+
+.form-quantity .form-field:last-child {
+  margin-bottom: 0;
+}
+
+/* ---- 버튼 ------------------------------------------------------ */
+.form-actions {
+  display: flex;
+  gap: var(--space-4);
+}
+
+.btn-primary {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 48px; /* hit area 44px+ */
+  padding: var(--space-5) var(--space-10);
+  background: var(--wd-primary); /* #0066FF */
+  color: var(--text-on-primary);
+  border: 0;
+  border-radius: var(--radius-xl);
+  font-size: var(--headline-2-size);
+  line-height: var(--headline-2-line);
+  font-weight: var(--font-weight-semibold);
+  cursor: pointer;
+  transition: background var(--duration-fast) var(--ease-standard);
+}
+
+.btn-primary:hover {
+  background: var(--wd-primary-strong);
+}
+
+.btn-primary:active {
+  background: var(--wd-primary-heavy);
+}
+
+.btn-primary:focus-visible {
+  outline: 0;
+  box-shadow: var(--ring-focus);
+}
+
+.btn-primary:disabled {
+  background: var(--wd-interaction-disable);
+  color: var(--text-placeholder);
+  cursor: not-allowed;
+}
+
+/* ---- live-status (접근성) ------------------------------------- */
+#live-status {
+  max-width: var(--viewport-lg);
+  margin: 0 auto;
+  padding: 0 var(--margin-page);
+  min-height: 24px;
+  font-size: var(--body-2-size);
+}
+
+#live-status.is-success {
+  color: var(--wd-status-positive);
+}
+
+#live-status.is-error {
+  color: var(--wd-status-negative);
+}
+
+#live-status:empty {
+  min-height: 0;
+}
+
+/* ---- 모바일 375px: 1열 · 가로 스크롤 없음 ---------------------- */
+@media (max-width: 480px) {
+  .app-main {
+    padding: var(--space-6); /* 12px, 모바일 page margin 축소 */
+  }
+
+  .form-card {
+    padding: var(--space-6);
+  }
+
+  .form-quantity {
+    padding: var(--space-6);
+  }
+
+  .form-actions .btn-primary {
+    width: 100%;
+  }
+}
+
+html, body {
+  overflow-x: hidden;
+}
