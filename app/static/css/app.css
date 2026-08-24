@@ -201,3 +201,325 @@
 html, body {
   overflow-x: hidden;
 }
+
+/* =============================================================
+   WP-14-B2A — 접수 목록 화면
+   정보 중심 · border-first. 상태는 항상 "색상 + 텍스트" 병기.
+   ============================================================= */
+
+.list-card {
+  background: var(--surface-card);
+  border-radius: var(--radius-xl);
+  box-shadow: var(--ring-neutral);
+  padding: var(--space-8);
+}
+
+.list-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-4);
+  margin-bottom: var(--space-8);
+}
+
+.list-head h1 {
+  margin: 0;
+  color: var(--text-heading);
+}
+
+/* ---- 필터 바 ------------------------------------------------- */
+.filter-bar {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr)) auto;
+  gap: var(--space-4);
+  align-items: end;
+  padding: var(--space-6);
+  margin-bottom: var(--space-8);
+  border-radius: var(--radius-lg);
+  background: var(--surface-page-alt);
+}
+
+.filter-field {
+  min-width: 0;
+}
+
+.filter-field label {
+  display: block;
+  margin-bottom: var(--space-2);
+  color: var(--text-body);
+  font-size: var(--label-1-size);
+  line-height: var(--label-1-line);
+  font-weight: var(--font-weight-medium);
+}
+
+.filter-field input,
+.filter-field select {
+  width: 100%;
+  min-height: 44px;
+  padding: var(--space-3) var(--space-5);
+  background: var(--surface-card);
+  color: var(--text-body);
+  border: 0;
+  border-radius: var(--radius-xl);
+  box-shadow: var(--ring-normal);
+  font-size: var(--body-2-size);
+  line-height: var(--body-2-line);
+}
+
+.filter-field input:focus,
+.filter-field select:focus {
+  outline: 0;
+  box-shadow: var(--ring-focus);
+}
+
+.filter-actions {
+  display: flex;
+  gap: var(--space-4);
+}
+
+/* ---- 버튼 (목록 화면 전용 ghost) ------------------------------ */
+.btn-ghost {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 44px;
+  padding: var(--space-4) var(--space-8);
+  background: var(--surface-card);
+  color: var(--wd-primary);
+  border-radius: var(--radius-xl);
+  box-shadow: var(--ring-normal);
+  font-size: var(--body-2-size);
+  font-weight: var(--font-weight-semibold);
+  text-decoration: none;
+}
+
+.btn-ghost:hover {
+  color: var(--wd-primary-strong);
+  text-decoration: none;
+  box-shadow: var(--ring-normal);
+}
+
+.btn-ghost:focus-visible {
+  outline: 0;
+  box-shadow: var(--ring-focus);
+}
+
+/* ---- 표 ------------------------------------------------------- */
+.list-table-wrap {
+  width: 100%;
+}
+
+.req-table {
+  width: 100%;
+  border-collapse: collapse;
+  table-layout: fixed;
+}
+
+.req-table caption {
+  text-align: left;
+}
+
+.req-table th {
+  padding: var(--space-4) var(--space-5);
+  color: var(--text-muted);
+  font-size: var(--label-2-size);
+  line-height: var(--label-2-line);
+  font-weight: var(--font-weight-semibold);
+  text-align: left;
+  border-bottom: 1px solid var(--wd-line-solid-normal);
+}
+
+.req-table td {
+  padding: var(--space-5) var(--space-5);
+  font-size: var(--body-2-size);
+  line-height: var(--body-2-line);
+  color: var(--text-body);
+  border-bottom: 1px solid var(--wd-line-solid-alternative);
+  vertical-align: middle;
+  word-break: keep-all;
+  overflow-wrap: anywhere;
+}
+
+.req-table tbody tr:last-child td {
+  border-bottom: 0;
+}
+
+/* 컬럼 폭 배분 (table-layout: fixed) */
+.req-table th:nth-child(1) { width: 18%; }
+.req-table th:nth-child(2) { width: 18%; }
+.req-table th:nth-child(3) { width: 16%; }
+.req-table th:nth-child(4) { width: 18%; }
+.req-table th:nth-child(5) { width: 12%; }
+.req-table th:nth-child(6) { width: 18%; }
+
+.req-no {
+  font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+  font-size: var(--body-2-size);
+}
+
+.req-qty {
+  font-weight: var(--font-weight-semibold);
+}
+
+/* ---- 상태 badge (색상 + 텍스트 병기) -------------------------- */
+.status-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-3);
+  min-height: 28px;
+  padding: var(--space-2) var(--space-5);
+  border-radius: var(--radius-full);
+  font-size: var(--label-2-size);
+  line-height: var(--label-2-line);
+  font-weight: var(--font-weight-semibold);
+}
+
+.status-badge__dot {
+  width: 8px;
+  height: 8px;
+  border-radius: var(--radius-full);
+  background: currentColor;
+}
+
+.status-received {
+  background: var(--wd-accent-light-blue-bg);
+  color: var(--wd-accent-light-blue-fg);
+}
+
+.status-picked_up {
+  background: var(--wd-accent-violet-bg);
+  color: var(--wd-accent-violet-fg);
+}
+
+.status-disinfected {
+  background: var(--wd-accent-green-bg);
+  color: var(--wd-accent-green-fg);
+}
+
+.status-delivered {
+  background: var(--wd-accent-cyan-bg);
+  color: var(--wd-accent-cyan-fg);
+}
+
+/* ---- empty state ---------------------------------------------- */
+.empty-state {
+  padding: var(--space-12) var(--space-8);
+  border-radius: var(--radius-lg);
+  background: var(--surface-page-alt);
+  text-align: center;
+}
+
+.empty-state__text {
+  margin: 0 0 var(--space-2);
+  color: var(--text-heading);
+  font-size: var(--headline-2-size);
+  line-height: var(--headline-2-line);
+  font-weight: var(--font-weight-semibold);
+}
+
+.empty-state__hint {
+  margin: 0;
+  color: var(--text-muted);
+  font-size: var(--body-2-size);
+}
+
+/* ---- 목록 푸터 -------------------------------------------------- */
+.list-foot {
+  margin: var(--space-6) 0 0;
+  color: var(--text-muted);
+}
+
+.list-card #list-status:empty {
+  display: none;
+}
+
+/* ---- 모바일 375px: 카드 전환 (가로 스크롤 없음) ----------------- */
+@media (max-width: 720px) {
+  .list-card {
+    padding: var(--space-6);
+  }
+
+  .list-head {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+
+  .filter-bar {
+    grid-template-columns: 1fr;
+  }
+
+  .filter-actions {
+    flex-wrap: wrap;
+  }
+
+  .filter-actions .btn-primary,
+  .filter-actions .btn-ghost {
+    flex: 1 1 auto;
+    width: auto;
+  }
+
+  .list-table-wrap {
+    width: 100%;
+  }
+
+  /* 표 → 카드 전환: thead는 접근성을 위해 sr-only 처리,
+     td의 data-label로 행 내 필드 라벨 병기. 가로 overflow 없음. */
+  .req-table,
+  .req-table tbody,
+  .req-table tr,
+  .req-table td {
+    display: block;
+    width: 100%;
+  }
+
+  .req-table thead {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    overflow: hidden;
+    clip: rect(0 0 0 0);
+  }
+
+  .req-table tbody {
+    display: block;
+  }
+
+  .req-table tr {
+    display: block;
+    margin-bottom: var(--space-6);
+    padding: var(--space-5);
+    border-radius: var(--radius-xl);
+    background: var(--surface-page-alt);
+    box-shadow: var(--ring-alternative);
+  }
+
+  .req-table td {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: var(--space-4);
+    padding: var(--space-3) 0;
+    border-bottom: 1px solid var(--wd-line-solid-alternative);
+    word-break: break-word;
+  }
+
+  .req-table tbody tr:last-child td {
+    border-bottom: 1px solid var(--wd-line-solid-alternative);
+  }
+
+  .req-table tr:last-child td:last-child {
+    border-bottom: 0;
+  }
+
+  .req-table td::before {
+    content: attr(data-label);
+    flex: 0 0 auto;
+    color: var(--text-muted);
+    font-size: var(--label-2-size);
+    font-weight: var(--font-weight-semibold);
+  }
+
+  .req-table td.req-detail a {
+    flex-shrink: 0;
+  }
+}

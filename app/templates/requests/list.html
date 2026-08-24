@@ -1,0 +1,95 @@
+{% extends "base.html" %}
+{% block title %}접수 목록 — 복지용구 위탁소독{% endblock %}
+{% block content %}
+<section class="list-card" aria-labelledby="list-title">
+  <div class="list-head">
+    <h1 id="list-title" class="wd-heading-1">접수 목록</h1>
+    <a class="btn-ghost" href="{{ export_url }}" download>엑셀 다운로드</a>
+  </div>
+
+  <!-- 필터: GET 제출 → 서버 측 재렌더 (기존 list_requests 서비스 재사용) -->
+  <form class="filter-bar" method="get" action="/admin/requests" role="search" aria-label="목록 필터">
+    <div class="filter-field">
+      <label for="pickup_date_from">시작일</label>
+      <input type="date" id="pickup_date_from" name="pickup_date_from"
+             value="{{ pickup_date_from }}">
+    </div>
+    <div class="filter-field">
+      <label for="pickup_date_to">종료일</label>
+      <input type="date" id="pickup_date_to" name="pickup_date_to"
+             value="{{ pickup_date_to }}">
+    </div>
+    <div class="filter-field">
+      <label for="business_office_id">사업소</label>
+      <select id="business_office_id" name="business_office_id">
+        <option value="">전체</option>
+        {% for o in offices %}
+        <option value="{{ o.id }}" {% if business_office_id|string == o.id|string %}selected{% endif %}>{{ o.name }}</option>
+        {% endfor %}
+      </select>
+    </div>
+    <div class="filter-field">
+      <label for="current_status">상태</label>
+      <select id="current_status" name="current_status">
+        <option value="">전체</option>
+        {% for key, label in status_labels.items() %}
+        <option value="{{ key }}" {% if current_status == key %}selected{% endif %}>{{ label }}</option>
+        {% endfor %}
+      </select>
+    </div>
+    <div class="filter-actions">
+      <button type="submit" class="btn-primary">적용</button>
+      <a class="btn-ghost" href="/admin/requests">초기화</a>
+    </div>
+  </form>
+
+  <p id="list-status" role="status" aria-live="polite"></p>
+
+  {% if rows %}
+  <div class="list-table-wrap">
+    <table class="req-table">
+      <thead>
+        <tr>
+          <th scope="col">접수번호</th>
+          <th scope="col">사업소</th>
+          <th scope="col">수거 희망일</th>
+          <th scope="col">상태</th>
+          <th scope="col">전체 수량</th>
+          <th scope="col"><span class="th-visual-only">상세</span></th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for r in rows %}
+        <tr>
+          <td class="req-no">{{ r.request_no }}</td>
+          <td data-label="사업소">{{ r.office_name }}</td>
+          <td data-label="수거 희망일">{{ r.pickup_date }}</td>
+          <td data-label="상태">
+            <span class="status-badge status-{{ r.status|lower }}">
+              <span class="status-badge__dot" aria-hidden="true"></span>
+              {{ r.status_label }}
+            </span>
+          </td>
+          <td data-label="전체 수량" class="req-qty">{{ r.total_qty }}</td>
+          <td data-label="상세" class="req-detail">
+            <a href="/admin/requests/{{ r.id }}">상세 보기</a>
+          </td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+  {% else %}
+  <div class="empty-state" data-empty>
+    <p class="empty-state__text">표시할 접수가 없습니다.</p>
+    <p class="empty-state__hint">필터를 초기화하거나 새 접수를 접수해 주세요.</p>
+  </div>
+  {% endif %}
+
+  <p class="list-foot wd-label-2">
+    총 {{ rows|length }}건
+    ·
+    <a href="/requests/new">새 접수</a>
+  </p>
+</section>
+{% endblock %}
