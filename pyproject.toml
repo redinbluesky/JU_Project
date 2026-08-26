@@ -15,6 +15,7 @@ dependencies = [
     "openpyxl>=3.1.0",
     "pytest>=8.0.0",
     "httpx>=0.28.0",
+    "tzdata>=2024.1",
 ]
 
 [build-system]

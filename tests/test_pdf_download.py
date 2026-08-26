@@ -19,7 +19,7 @@ from app.main.db.base import Base
 from app.main.models.models import BusinessOffice, Request, RequestNoCounter
 from app.main.api import requests as api_module
 from app.main.api.requests import get_db
-from app.main.services.pdf_service import PROTOTYPE_NOTICE, generate_request_pdf
+from app.main.services.pdf_service import PROTOTYPE_NOTICE, _status_label, generate_request_pdf
 from app.server import app
 
 
@@ -220,6 +220,8 @@ class TestPdfContent:
         # 접수번호도 문서에 포함 (Title 이 아닌 본문은 CID 인코딩 → Title/메타 기준 외
         # ASCII 접수번호는 콘텐츠 스트림에 그대로 존재)
         assert req.request_no.encode("ascii") in data
+        assert _status_label(req.current_status) == "소독완료"
+        assert b"DISINFECTED" not in data
 
     def test_notice_constant_value(self):
         assert PROTOTYPE_NOTICE == "기술 프로토타입 - 공단 제출용 아님"

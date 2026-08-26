@@ -5,12 +5,14 @@
 import pytest
 from sqlalchemy import create_engine, event
 from sqlalchemy.orm import sessionmaker
-from datetime import date, datetime, timezone
+from datetime import date, datetime, timedelta, timezone
 
 from app.main.db.base import Base
 from app.main.models.models import Request, RequestStatusHistory, BusinessOffice, RequestStatus, PickupLocationType, RequestNoCounter
 from app.main.schemas.request import RequestCreate
 from app.main.services.request_service import create_request
+
+VALID_PICKUP_DATE = date.today() + timedelta(days=1)
 
 
 @pytest.fixture
@@ -48,7 +50,7 @@ def sample_request_data():
     """정상 입력 데이터"""
     return RequestCreate(
         business_office_id=1,
-        pickup_date=date(2026, 8, 25),
+        pickup_date=VALID_PICKUP_DATE,
         pickup_location_type=PickupLocationType.HOME,
         pickup_address="서울시 강남구 테헤란로 123",
         electric_bed_quantity=1,
@@ -98,7 +100,7 @@ class TestCounterRollbackOnFailure:
         # FK 위반을 유도: 존재하지 않는 business_office_id(999)로 호출
         bad_data = RequestCreate(
             business_office_id=999,
-            pickup_date=date(2026, 8, 25),
+            pickup_date=VALID_PICKUP_DATE,
             pickup_location_type=PickupLocationType.HOME,
             pickup_address="서울시 강남구 테헤란로 123",
             electric_bed_quantity=1,

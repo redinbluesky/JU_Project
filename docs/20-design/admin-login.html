@@ -1,0 +1,589 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>관리자 로그인 (PC 목업, WP-16)</title>
+<style>
+  /* ===== Design Tokens (pc-applicant-info.html과 동일 세트 유지) ===== */
+  :root{
+    --color-bg:#f5f6f8;
+    --color-surface:#ffffff;
+    --color-border:#d9dce1;
+    --color-border-strong:#b7bcc4;
+    --color-text:#1f2328;
+    --color-text-muted:#5b6572;
+    --color-primary:#1a56db;
+    --color-primary-dark:#123f9e;
+    --color-primary-contrast:#ffffff;
+    --color-success:#0f7a3d;
+    --color-success-bg:#e6f4ea;
+    --color-success-border:#8fd19e;
+    --color-danger:#c81e1e;
+    --color-danger-bg:#fdecec;
+    --color-danger-border:#f1a9a9;
+    --color-warning-bg:#fff7e6;
+    --color-warning-border:#e3a008;
+    --color-focus:#1a56db;
+    --space-1:4px;
+    --space-2:8px;
+    --space-3:12px;
+    --space-4:16px;
+    --space-5:24px;
+    --space-6:32px;
+    --space-7:48px;
+    --radius-sm:4px;
+    --radius-md:8px;
+    --radius-lg:12px;
+    --font-size-xs:12px;
+    --font-size-sm:13px;
+    --font-size-base:15px;
+    --font-size-md:16px;
+    --font-size-lg:20px;
+    --font-size-xl:24px;
+    --line-height-base:1.6;
+    --max-width:1280px;
+    --focus-ring:0 0 0 3px rgba(26,86,219,.35);
+    --transition-base:120ms ease-in-out;
+  }
+  *{box-sizing:border-box;}
+  html,body{margin:0;padding:0;}
+  body{
+    background:var(--color-bg);
+    color:var(--color-text);
+    font-family:"Pretendard","Malgun Gothic","Apple SD Gothic Neo",sans-serif;
+    font-size:var(--font-size-base);
+    line-height:var(--line-height-base);
+    min-height:100vh;
+  }
+  h1,h2{margin:0 0 var(--space-3) 0;font-weight:700;}
+  h1{font-size:var(--font-size-xl);}
+  h2{font-size:var(--font-size-lg);}
+  p{margin:0 0 var(--space-2) 0;}
+  button{font-family:inherit;font-size:var(--font-size-base);cursor:pointer;}
+  input{font-family:inherit;font-size:var(--font-size-base);}
+  a{color:var(--color-primary);}
+
+  :focus-visible{outline:none;box-shadow:var(--focus-ring);border-radius:var(--radius-sm);}
+
+  .skip-link{
+    position:absolute;left:-9999px;top:0;background:var(--color-primary);
+    color:var(--color-primary-contrast);padding:var(--space-2) var(--space-4);
+    z-index:100;border-radius:0 0 var(--radius-sm) 0;
+  }
+  .skip-link:focus{left:0;}
+
+  .page-shell{
+    max-width:var(--max-width);
+    margin:0 auto;
+    padding:var(--space-5) var(--space-5) var(--space-7);
+  }
+
+  /* ===== 상단 배너 (WP-15-B와 동일) ===== */
+  .site-banner img{
+    width:100%;
+    display:block;
+    height:auto;
+    border-radius:var(--radius-lg);
+    margin-bottom:var(--space-6);
+    object-fit:cover;
+  }
+
+  .admin-shell{
+    display:flex;
+    align-items:flex-start;
+    justify-content:center;
+    padding-top:var(--space-6);
+  }
+
+  .field{display:flex;flex-direction:column;gap:var(--space-1);}
+  .field label{font-size:var(--font-size-sm);font-weight:600;color:var(--color-text);}
+  .field .required-mark{color:var(--color-danger);margin-left:2px;}
+  .field input[type="text"],
+  .field input[type="password"]{
+    border:1px solid var(--color-border-strong);
+    border-radius:var(--radius-sm);
+    padding:var(--space-2) var(--space-3);
+    background:var(--color-surface);
+    color:var(--color-text);
+    width:100%;
+  }
+  .field input[aria-invalid="true"]{
+    border-color:var(--color-danger);
+    background:var(--color-danger-bg);
+  }
+  .field-error{
+    font-size:var(--font-size-xs);color:var(--color-danger);min-height:16px;
+  }
+
+  .btn{
+    border-radius:var(--radius-sm);
+    padding:var(--space-2) var(--space-4);
+    border:1px solid var(--color-border-strong);
+    background:var(--color-surface);
+    color:var(--color-text);
+    font-weight:600;
+    white-space:nowrap;
+    transition:background var(--transition-base);
+  }
+  .btn:hover{background:var(--color-bg);}
+  .btn-primary{
+    background:var(--color-primary);
+    border-color:var(--color-primary);
+    color:var(--color-primary-contrast);
+  }
+  .btn-primary:hover{background:var(--color-primary-dark);}
+  .btn:disabled{opacity:.5;cursor:not-allowed;}
+  .btn-row{display:flex;gap:var(--space-2);align-items:center;}
+
+  .status-pill{
+    display:inline-flex;align-items:center;gap:var(--space-1);
+    font-size:var(--font-size-sm);font-weight:600;
+    padding:2px var(--space-2);border-radius:999px;
+    border:1px solid var(--color-border-strong);
+    color:var(--color-text-muted);
+  }
+  .status-pill[data-state="done"]{
+    color:var(--color-success);
+    background:var(--color-success-bg);
+    border-color:var(--color-success-border);
+  }
+  .status-pill[data-state="pending"]{
+    color:var(--color-warning-border);
+    background:var(--color-warning-bg);
+    border-color:var(--color-warning-border);
+  }
+  .status-pill::before{content:"○";}
+  .status-pill[data-state="done"]::before{content:"●";}
+  .status-pill[data-state="pending"]::before{content:"●";}
+
+  .card{
+    background:var(--color-surface);
+    border:1px solid var(--color-border);
+    border-radius:var(--radius-lg);
+    padding:var(--space-5);
+  }
+  .card > h2{
+    padding-bottom:var(--space-3);
+    border-bottom:1px solid var(--color-border);
+    margin-bottom:var(--space-4);
+  }
+
+  .office-desc{
+    font-size:var(--font-size-sm);color:var(--color-text-muted);
+  }
+
+  dl.detail-list{display:grid;grid-template-columns:1fr;gap:var(--space-2) var(--space-4);margin:0;}
+  dl.detail-list dt{font-weight:600;color:var(--color-text-muted);}
+  dl.detail-list dd{margin:0 0 var(--space-2) 0;}
+  dl.detail-list div{display:flex;justify-content:space-between;gap:var(--space-3);}
+
+  /* ===== 관리자 로그인 카드 ===== */
+  .admin-card{
+    background:var(--color-surface);
+    border:1px solid var(--color-border);
+    border-radius:var(--radius-lg);
+    padding:var(--space-5);
+    max-width:480px;
+    width:100%;
+    margin:0 auto;
+  }
+  .admin-card--wide{max-width:960px;}
+  .admin-card__header{
+    display:flex;align-items:baseline;justify-content:space-between;
+    margin-bottom:var(--space-4);
+  }
+  .admin-card__title{font-size:var(--font-size-lg);font-weight:700;margin:0;}
+  .admin-card__badge{font-size:var(--font-size-sm);color:var(--color-text-muted);}
+
+  .admin-login-grid{
+    display:grid;
+    grid-template-columns:1fr;
+    gap:var(--space-4);
+  }
+
+  .cert-guide{
+    margin-top:var(--space-4);
+    display:flex;align-items:flex-start;gap:var(--space-3);
+    background:var(--color-warning-bg);
+    border:1px solid var(--color-warning-border);
+    border-radius:var(--radius-md);
+    padding:var(--space-3) var(--space-4);
+    font-size:var(--font-size-sm);
+    color:var(--color-text);
+  }
+  .cert-guide[hidden]{display:none;}
+
+  .submit-row{
+    display:flex;justify-content:space-between;align-items:center;gap:var(--space-3);
+  }
+  .submit-row .btn-primary{
+    font-size:var(--font-size-md);
+    padding:var(--space-3) var(--space-6);
+  }
+
+  #admin-login-alert{
+    border:1px solid var(--color-danger-border);
+    background:var(--color-danger-bg);
+    color:var(--color-danger);
+    border-radius:var(--radius-md);
+    padding:var(--space-3) var(--space-4);
+    margin-bottom:var(--space-4);
+    font-size:var(--font-size-sm);
+    display:none;
+  }
+  #admin-login-alert.show{display:block;}
+
+  .admin-dashboard-grid{
+    display:grid;
+    grid-template-columns:1fr 1fr;
+    gap:var(--space-4) var(--space-5);
+    margin-top:var(--space-4);
+  }
+  .admin-dashboard-grid .card{margin:0;}
+
+  /* 화면은 로그인 후 메뉴로 전환되는 정적 목업 */
+  #admin-list-view,#admin-detail-view,#admin-dashboard-view{display:none;}
+  body.admin-dashboard-mode #admin-login-view{display:none;}
+  body.admin-dashboard-mode[data-admin-view="list"] #admin-list-view,
+  body.admin-dashboard-mode[data-admin-view="detail"] #admin-detail-view,
+  body.admin-dashboard-mode[data-admin-view="dashboard"] #admin-dashboard-view{display:block;}
+
+  .admin-filter-controls{display:grid;grid-template-columns:repeat(4,1fr);gap:var(--space-4);width:100%;}
+  .admin-filter-controls input,.admin-filter-controls select{height:44px;width:100%;}
+  .admin-filter-controls .submit-row{grid-column:1 / -1;}
+  .admin-filter-controls .submit-row .btn{width:100%;}
+  .admin-result-table{width:100%;border-collapse:collapse;table-layout:fixed;}
+  .admin-result-table th,.admin-result-table td{border:1px solid var(--color-border-strong);padding:var(--space-3);text-align:left;}
+  .admin-result-table th{background:var(--color-bg);}
+  .status-timeline{display:flex;flex-direction:column;gap:var(--space-3);}
+  .status-timeline > span{display:inline-flex;gap:var(--space-3);align-items:center;}
+  .status-timeline article{border-left:3px solid var(--color-primary);padding-left:var(--space-3);}
+  .status-timeline time{display:block;color:var(--color-text-muted);font-size:var(--font-size-sm);}
+  .detail-status-row{display:flex;align-items:center;gap:var(--space-3);}
+  .detail-status-row > .status-pill{margin-left:var(--space-4);}
+  .detail-status-row > #admin-status-change{margin-left:auto;}
+  .driver-assignment{display:flex;flex-direction:column;gap:var(--space-4);font-size:inherit;}
+  .driver-assignment > *{font-size:inherit;margin:0;}
+  .admin-process-memo{display:block;width:100%;box-sizing:border-box;}
+
+  @media (max-width: 959px){
+    .page-shell{padding:var(--space-3);}
+    .admin-shell{padding-top:var(--space-3);}
+    .admin-dashboard-grid{grid-template-columns:1fr;}
+    .admin-filter-controls{grid-template-columns:1fr;}
+    .admin-filter-controls .submit-row{grid-column:auto;}
+    .admin-card{padding:var(--space-4);}
+    .admin-card__header,.submit-row{align-items:flex-start;flex-direction:column;}
+    .admin-card__header .btn-row{width:100%;justify-content:space-between;}
+  }
+</style>
+</head>
+<body>
+<a class="skip-link" href="#admin-main">본문 바로가기</a>
+
+<div class="page-shell">
+
+  <header class="site-banner">
+    <img src="../../runtime/generated/gwangju-welfare-disinfection-banner-pc.png" alt="광주 복지용구 위탁소독">
+  </header>
+
+  <main id="admin-main">
+
+    <!-- ============ 관리자 로그인 화면 ============ -->
+    <div class="admin-shell" id="admin-login-view">
+      <section class="admin-card" id="admin-login-card" aria-labelledby="admin-login-title" tabindex="-1">
+        <div class="admin-card__header">
+          <h1 id="admin-login-title" class="admin-card__title">관리자 로그인</h1>
+          <span class="admin-card__badge">사업소 관리자 전용입니다.</span>
+        </div>
+
+        <div id="admin-login-alert" role="alert" tabindex="-1"></div>
+
+        <form id="admin-login-form" novalidate>
+          <div class="admin-login-grid">
+            <div class="field">
+              <label for="admin-id">관리자 아이디<span class="required-mark" aria-hidden="true">*</span></label>
+              <input type="text" id="admin-id" name="admin-id" autocomplete="username" required aria-required="true" aria-describedby="admin-id-error">
+              <span id="admin-id-error" class="field-error"></span>
+            </div>
+            <div class="field">
+              <label for="admin-password">비밀번호<span class="required-mark" aria-hidden="true">*</span></label>
+              <input type="password" id="admin-password" name="admin-password" autocomplete="current-password" required aria-required="true" aria-describedby="admin-password-error">
+              <span id="admin-password-error" class="field-error"></span>
+            </div>
+          </div>
+
+          <div class="cert-guide" id="admin-lock-guide" hidden>
+            <span aria-hidden="true">ⓘ</span>
+            <p style="margin:0;">
+              로그인 실패가 5회 누적되어 계정이 <strong>10분간 잠금</strong>되었습니다. 잠시 후 다시 시도하거나 사업소 관리자에게 문의해 주세요. (목업 데모 값)
+            </p>
+          </div>
+
+          <div class="submit-row" style="margin-top:var(--space-4);">
+            <span id="admin-login-attempts" class="field-error" role="status" aria-live="polite"></span>
+            <button type="submit" id="admin-login-submit" class="btn btn-primary">로그인</button>
+          </div>
+        </form>
+
+        <p class="office-desc" style="margin-top:var(--space-4);">
+          데모 계정: 아이디 <strong>admin</strong> / 비밀번호 <strong>admin1234</strong> (목업 전용, 실제 인증 아님)
+        </p>
+      </section>
+    </div>
+
+    <!-- ============ 관리자 접수 목록 화면 ============ -->
+    <div class="admin-shell" id="admin-list-view">
+      <section class="admin-card admin-card--wide" aria-labelledby="admin-list-title">
+        <div class="admin-card__header"><h1 id="admin-list-title" class="admin-card__title">접수 목록</h1><div class="btn-row"><button type="button" class="btn admin-nav" data-view="dashboard">통계 대시보드</button><button type="button" class="btn" id="admin-list-logout">로그아웃</button></div></div>
+        <form id="admin-filter-form" class="admin-filter-controls" role="search" aria-label="목록 필터">
+          <div class="field"><label for="pickup-date-from">시작일</label><input type="date" id="pickup-date-from"></div>
+          <div class="field"><label for="pickup-date-to">종료일</label><input type="date" id="pickup-date-to"></div>
+          <div class="field"><label for="office-filter">사업소</label><select id="office-filter"><option>전체</option><option>가온복지용구센터</option><option>나래복지용구센터</option></select></div>
+          <div class="field"><label for="status-filter">상태</label><select id="status-filter"><option>전체</option><option>접수</option><option>수거 완료</option><option>소독 완료</option><option>배송 완료</option></select></div>
+          <div class="submit-row"><button type="submit" class="btn btn-primary">조회</button></div>
+        </form>
+        <p id="admin-list-status" role="status" aria-live="polite"></p>
+        <table class="admin-result-table"><thead><tr><th>접수번호</th><th>사업소</th><th>수거 희망일</th><th>상태</th><th>상세</th></tr></thead><tbody id="admin-filter-rows"><tr class="admin-filter-row" data-pickup-date="2026-08-28" data-office="가온복지용구센터" data-status="접수"><td>GJ-2026-000123</td><td>가온복지용구센터</td><td>2026-08-28</td><td><span class="status-pill" data-state="pending">접수</span></td><td><button type="button" class="btn admin-detail-open">상세 보기</button></td></tr><tr class="admin-filter-row" data-pickup-date="2026-08-29" data-office="나래복지용구센터" data-status="소독 완료"><td>GJ-2026-000124</td><td>나래복지용구센터</td><td>2026-08-29</td><td><span class="status-pill" data-state="done">소독 완료</span></td><td><button type="button" class="btn admin-detail-open">상세 보기</button></td></tr></tbody></table>
+      </section>
+    </div>
+
+    <!-- ============ 관리자 접수 상세 화면 ============ -->
+    <div class="admin-shell" id="admin-detail-view">
+      <section class="admin-card admin-card--wide" aria-labelledby="admin-detail-title">
+        <div class="admin-card__header"><h1 id="admin-detail-title" class="admin-card__title">접수 상세 GJ-2026-000123</h1><button type="button" class="btn admin-nav" data-view="list">목록으로</button></div>
+        <div class="detail-status-row"><span>현재 상태</span><span id="admin-detail-status" class="status-pill" data-state="pending">접수대기</span><button type="button" id="admin-status-change" class="btn btn-primary">상태 변경: 수거예정으로 변경</button><a id="admin-detail-pdf" class="btn can-download-pdf" href="#" hidden>PDF 다운로드</a></div>
+        <div class="admin-dashboard-grid"><article class="card driver-assignment"><h2>픽업 담당 기사</h2><p class="office-desc">선택 항목은 기사명 + 연락처로 표시됩니다.</p><label for="driver-select">기사 선택</label><select id="driver-select"><option value="">미지정</option><option>홍길동 + 010-1234-5678</option><option>김민수 + 010-9876-5432</option></select><p>현재 지정 기사: <strong id="assigned-driver">미지정</strong></p><p>지정 시각: <time id="driver-assigned-at">-</time></p></article><article class="card"><h2>상태 진행</h2><div class="status-timeline" role="list"><span role="listitem">● 접수대기</span><span role="listitem">○ 수거예정</span><span role="listitem">○ 입고/소독중</span><span role="listitem">○ 소독완료</span><span role="listitem">○ 배송완료</span></div></article></div>
+        <div class="card"><h2>처리 내역 메모</h2><textarea class="admin-process-memo" id="admin-process-memo" rows="3" placeholder="상태 변경 사유/현장 메모를 입력해 주세요"></textarea></div>
+        <div class="card"><h2>처리 이력</h2><div class="status-timeline" id="status-timeline" aria-label="최신순 처리 이력" aria-readonly="true" readonly><article><strong>접수대기</strong><time>2026-08-26 09:00</time><p>처리자/기사: -</p><p>처리 내역: 접수 완료</p></article></div></div>
+        <p id="admin-detail-status-message" role="status" aria-live="polite"></p>
+      </section>
+    </div>
+
+    <!-- ============ 관리자 대시보드 화면 (로그인 성공 시 표시) ============ -->
+    <div id="admin-dashboard-view">
+      <section class="admin-card admin-card--wide" id="admin-dashboard-card" aria-labelledby="admin-dashboard-title" tabindex="-1">
+        <div class="admin-card__header">
+          <h1 id="admin-dashboard-title" class="admin-card__title">관리자 대시보드 (목업)</h1>
+          <div class="btn-row">
+            <span class="status-pill" data-state="done" role="status">admin 로그인됨</span>
+            <button type="button" class="btn admin-nav" data-view="list">접수 목록</button>
+            <button type="button" id="admin-logout-btn" class="btn">로그아웃</button>
+          </div>
+        </div>
+
+        <div class="admin-dashboard-grid">
+          <article class="card">
+            <h2>전체 접수 건수</h2>
+            <dl class="detail-list">
+              <div><dt>총 접수 건수</dt><dd>128건</dd></div>
+              <div><dt>금일 신규</dt><dd>6건</dd></div>
+            </dl>
+          </article>
+          <article class="card">
+            <h2>상태별 접수 건수</h2>
+            <dl class="detail-list">
+              <div><dt><span class="status-pill" data-state="pending" role="status">접수 대기</span></dt><dd>12건</dd></div>
+              <div><dt><span class="status-pill" data-state="done" role="status">수거 완료</span></dt><dd>96건</dd></div>
+              <div><dt><span class="status-pill" data-state="pending" role="status">A/S 요청</span></dt><dd>3건</dd></div>
+            </dl>
+          </article>
+          <article class="card">
+            <h2>권역별 접수 건수</h2>
+            <dl class="detail-list">
+              <div><dt>가온복지용구센터 (동구)</dt><dd>42건</dd></div>
+              <div><dt>나래복지용구센터 (서구)</dt><dd>51건</dd></div>
+              <div><dt>다솜복지용구센터 (남구)</dt><dd>35건</dd></div>
+            </dl>
+          </article>
+          <article class="card">
+            <h2>품목 수량</h2>
+            <dl class="detail-list">
+              <div><dt>전동침대</dt><dd>34대</dd></div>
+              <div><dt>수동휠체어</dt><dd>58대</dd></div>
+              <div><dt>보행보조차</dt><dd>36대</dd></div>
+            </dl>
+          </article>
+        </div>
+        <p class="office-desc" style="margin-top:var(--space-4);">
+          실제 데이터·API·DB 연동 없는 정적 목업 화면입니다. (WP-16) 신청자 화면과는 별도 파일로 분리되어 있으며, 이 페이지는 공개 신청 화면 메뉴에 노출되지 않습니다.
+        </p>
+      </section>
+    </div>
+
+  </main>
+</div>
+
+<script>
+(function(){
+  "use strict";
+
+  var adminLoginForm = document.getElementById("admin-login-form");
+  var adminIdInput = document.getElementById("admin-id");
+  var adminIdError = document.getElementById("admin-id-error");
+  var adminPasswordInput = document.getElementById("admin-password");
+  var adminPasswordError = document.getElementById("admin-password-error");
+  var adminLoginAlert = document.getElementById("admin-login-alert");
+  var adminLockGuide = document.getElementById("admin-lock-guide");
+  var adminLoginAttempts = document.getElementById("admin-login-attempts");
+  var adminLoginSubmit = document.getElementById("admin-login-submit");
+  var adminLogoutBtn = document.getElementById("admin-logout-btn");
+  var adminLoginCard = document.getElementById("admin-login-card");
+  var adminDashboardCard = document.getElementById("admin-dashboard-card");
+  var adminDetailPdf = document.getElementById("admin-detail-pdf");
+
+  var ADMIN_DEMO_ID = "admin";
+  var ADMIN_DEMO_PW = "admin1234";
+  var ADMIN_MAX_ATTEMPTS = 5;
+  var ADMIN_STATUS_STEPS = ["접수대기", "수거예정", "입고/소독중", "소독완료", "배송완료"];
+  var adminStatusIndex = 0;
+  var adminFailCount = 0;
+  var adminLocked = false;
+
+  function resetAdminLoginForm(){
+    adminFailCount = 0;
+    adminLocked = false;
+    adminLoginForm.reset();
+    adminLoginAlert.classList.remove("show");
+    adminLoginAlert.textContent = "";
+    adminLockGuide.hidden = true;
+    adminLoginAttempts.textContent = "";
+    adminIdError.textContent = "";
+    adminPasswordError.textContent = "";
+    adminIdInput.removeAttribute("aria-invalid");
+    adminPasswordInput.removeAttribute("aria-invalid");
+    adminLoginSubmit.disabled = false;
+  }
+
+  function showDashboard(){
+    document.body.classList.add("admin-dashboard-mode");
+    showAdminView("dashboard");
+  }
+
+  function showAdminView(view){
+    document.body.setAttribute("data-admin-view", view);
+    var target = document.getElementById("admin-" + view + "-view") || adminDashboardCard;
+    if(target) target.focus();
+  }
+
+  function showLogin(){
+    document.body.classList.remove("admin-dashboard-mode");
+    resetAdminLoginForm();
+    adminLoginCard.focus();
+  }
+
+  adminLoginForm.addEventListener("submit", function(e){
+    e.preventDefault();
+    if(adminLocked) return;
+
+    var idVal = adminIdInput.value.trim();
+    var pwVal = adminPasswordInput.value;
+    var valid = true;
+
+    if(!idVal){
+      adminIdInput.setAttribute("aria-invalid","true");
+      adminIdError.textContent = "관리자 아이디를 입력해 주세요.";
+      valid = false;
+    } else {
+      adminIdInput.removeAttribute("aria-invalid");
+      adminIdError.textContent = "";
+    }
+    if(!pwVal){
+      adminPasswordInput.setAttribute("aria-invalid","true");
+      adminPasswordError.textContent = "비밀번호를 입력해 주세요.";
+      valid = false;
+    } else {
+      adminPasswordInput.removeAttribute("aria-invalid");
+      adminPasswordError.textContent = "";
+    }
+    if(!valid){
+      adminLoginAlert.classList.remove("show");
+      adminLoginAlert.textContent = "";
+      (adminIdInput.getAttribute("aria-invalid") ? adminIdInput : adminPasswordInput).focus();
+      return;
+    }
+
+    if(idVal === ADMIN_DEMO_ID && pwVal === ADMIN_DEMO_PW){
+      adminLoginAlert.classList.remove("show");
+      adminLoginAlert.textContent = "";
+      adminLoginAttempts.textContent = "";
+      showDashboard();
+      return;
+    }
+
+    adminFailCount += 1;
+    var remaining = ADMIN_MAX_ATTEMPTS - adminFailCount;
+    adminIdInput.setAttribute("aria-invalid","true");
+    adminPasswordInput.setAttribute("aria-invalid","true");
+    adminPasswordInput.value = "";
+
+    adminLoginAlert.textContent = "아이디 또는 비밀번호가 올바르지 않습니다.";
+    adminLoginAlert.classList.add("show");
+
+    if(remaining <= 0){
+      adminLocked = true;
+      adminLockGuide.hidden = false;
+      adminLoginAttempts.textContent = "";
+      adminLoginSubmit.disabled = true;
+      adminIdInput.focus();
+    } else {
+      adminLoginAttempts.textContent = "남은 시도 횟수: " + remaining + "회";
+      adminPasswordInput.focus();
+    }
+  });
+
+  document.querySelectorAll(".admin-nav").forEach(function(button){
+    button.addEventListener("click", function(){ showAdminView(button.getAttribute("data-view")); });
+  });
+  document.querySelectorAll(".admin-detail-open").forEach(function(button){
+    button.addEventListener("click", function(){ showAdminView("detail"); });
+  });
+  document.getElementById("admin-filter-form").addEventListener("submit", function(event){
+    event.preventDefault();
+    var from = document.getElementById("pickup-date-from").value;
+    var to = document.getElementById("pickup-date-to").value;
+    var office = document.getElementById("office-filter").value;
+    var status = document.getElementById("status-filter").value;
+    var visibleRows = 0;
+    document.querySelectorAll(".admin-filter-row").forEach(function(row){
+      var matches = (!from || row.dataset.pickupDate >= from) && (!to || row.dataset.pickupDate <= to) && (office === "전체" || row.dataset.office === office) && (status === "전체" || row.dataset.status === status);
+      row.hidden = !matches; if(matches) visibleRows += 1;
+    });
+    document.getElementById("admin-list-status").textContent = visibleRows ? "검색 결과 " + visibleRows + "건 (필터 조건 적용)" : "검색 결과가 없습니다. 필터 조건을 확인해 주세요.";
+  });
+  document.getElementById("admin-status-change").addEventListener("click", function(){
+    var memo = document.getElementById("admin-process-memo");
+    var message = document.getElementById("admin-detail-status-message");
+    if(!memo.value.trim()){ message.textContent = "처리 내역을 입력해 주세요."; memo.focus(); return; }
+    if(adminStatusIndex >= ADMIN_STATUS_STEPS.length - 1){ message.textContent = "배송완료 이후에는 상태를 변경할 수 없습니다."; return; }
+    adminStatusIndex += 1;
+    var nextStatus = ADMIN_STATUS_STEPS[adminStatusIndex];
+    var status = document.getElementById("admin-detail-status");
+    status.textContent = nextStatus; status.setAttribute("data-state", "done");
+    adminDetailPdf.hidden = adminStatusIndex < 3;
+    this.hidden = adminStatusIndex >= ADMIN_STATUS_STEPS.length - 1;
+    this.textContent = adminStatusIndex < ADMIN_STATUS_STEPS.length - 1 ? "상태 변경: " + ADMIN_STATUS_STEPS[adminStatusIndex + 1] + "으로 변경" : "상태 변경 완료";
+    document.getElementById("assigned-driver").textContent = document.getElementById("driver-select").value || "미지정";
+    document.getElementById("driver-assigned-at").textContent = "2026-08-26 10:00";
+    document.getElementById("status-timeline").insertAdjacentHTML("afterbegin", "<article><strong>" + nextStatus + "</strong><time>2026-08-26 10:00</time><p>처리자/기사: " + (document.getElementById("driver-select").value || "미지정") + "</p><p>처리 내역: " + memo.value.trim() + "</p></article>");
+    memo.value = "";
+    message.textContent = "상태가 " + nextStatus + "로 변경되었습니다. (목업 데모)";
+  });
+  document.getElementById("driver-select").addEventListener("change", function(){
+    document.getElementById("assigned-driver").textContent = this.value || "미지정";
+    document.getElementById("driver-assigned-at").textContent = this.value ? "2026-08-26 10:00" : "-";
+  });
+  document.getElementById("admin-list-logout").addEventListener("click", showLogin);
+
+  if(adminLogoutBtn){
+    adminLogoutBtn.addEventListener("click", function(){
+      showLogin();
+    });
+  }
+
+})();
+</script>
+
+</body>
+</html>

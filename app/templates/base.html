@@ -10,12 +10,25 @@
 <body>
   <header class="app-header">
     <div class="app-header__inner">
-      <span class="app-header__brand wd-heading-2">복지용구 위탁소독</span>
+      <a class="app-header__brand wd-heading-2" href="/admin/dashboard">복지용구 위탁소독</a>
+      <button type="button" id="nav-toggle" class="nav-toggle" aria-controls="app-nav"
+              aria-expanded="false" aria-label="메뉴 열기">
+        <span aria-hidden="true">☰</span>
+      </button>
     </div>
+    <nav id="app-nav" class="app-nav" aria-label="주요 메뉴">
+      <a href="/admin/dashboard">대시보드</a>
+      <a href="/admin/requests">접수 목록</a>
+      <a href="/requests/new">새 접수</a>
+    </nav>
   </header>
   <main class="app-main">
     {% block content %}{% endblock %}
   </main>
+  <div id="error-alert" class="error-alert" role="alert" aria-live="assertive" aria-hidden="true" tabindex="-1">
+    <p id="error-alert-message" class="error-alert__message"></p>
+    <button type="button" class="error-alert__close" aria-label="알림 닫기">닫기</button>
+  </div>
   <div id="live-status" role="status" aria-live="polite"></div>
   <script src="/static/js/app.js" defer></script>
 </body>

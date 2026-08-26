@@ -5,13 +5,15 @@
 import pytest
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
-from datetime import date, datetime, timezone
+from datetime import date, datetime, timedelta, timezone
 from pydantic import ValidationError
 
 from app.main.db.base import Base
 from app.main.models.models import Request, RequestStatusHistory, BusinessOffice, RequestStatus, PickupLocationType, RequestNoCounter
 from app.main.schemas.request import RequestCreate
 from app.main.services.request_service import create_request
+
+VALID_PICKUP_DATE = date.today() + timedelta(days=1)
 
 
 @pytest.fixture
@@ -43,7 +45,7 @@ def sample_request_data():
     """정상 입력 데이터"""
     return RequestCreate(
         business_office_id=1,
-        pickup_date=date(2026, 8, 25),
+        pickup_date=VALID_PICKUP_DATE,
         pickup_location_type=PickupLocationType.HOME,
         pickup_address="서울시 강남구 테헤란로 123",
         electric_bed_quantity=1,
@@ -60,7 +62,7 @@ class TestRejectAllQuantitiesZero:
         with pytest.raises(ValidationError):
             RequestCreate(
                 business_office_id=1,
-                pickup_date=date(2026, 8, 25),
+                pickup_date=VALID_PICKUP_DATE,
                 pickup_location_type=PickupLocationType.HOME,
                 pickup_address="서울시 강남구 테헤란로 123",
                 electric_bed_quantity=0,
@@ -80,7 +82,7 @@ class TestRejectNegativeQuantity:
         with pytest.raises(ValidationError):
             RequestCreate(
                 business_office_id=1,
-                pickup_date=date(2026, 8, 25),
+                pickup_date=VALID_PICKUP_DATE,
                 pickup_location_type=PickupLocationType.HOME,
                 pickup_address="서울시 강남구 테헤란로 123",
                 electric_bed_quantity=-1,
@@ -95,7 +97,7 @@ class TestRejectNegativeQuantity:
         with pytest.raises(ValidationError):
             RequestCreate(
                 business_office_id=1,
-                pickup_date=date(2026, 8, 25),
+                pickup_date=VALID_PICKUP_DATE,
                 pickup_location_type=PickupLocationType.HOME,
                 pickup_address="서울시 강남구 테헤란로 123",
                 electric_bed_quantity=1,
@@ -114,7 +116,7 @@ class TestRejectNonIntegerQuantity:
         with pytest.raises(ValidationError):
             RequestCreate(
                 business_office_id=1,
-                pickup_date=date(2026, 8, 25),
+                pickup_date=VALID_PICKUP_DATE,
                 pickup_location_type=PickupLocationType.HOME,
                 pickup_address="서울시 강남구 테헤란로 123",
                 electric_bed_quantity=1.5,
@@ -129,7 +131,7 @@ class TestRejectNonIntegerQuantity:
         with pytest.raises(ValidationError):
             RequestCreate(
                 business_office_id=1,
-                pickup_date=date(2026, 8, 25),
+                pickup_date=VALID_PICKUP_DATE,
                 pickup_location_type=PickupLocationType.HOME,
                 pickup_address="서울시 강남구 테헤란로 123",
                 electric_bed_quantity="abc",
@@ -183,7 +185,7 @@ class TestRejectMissingRequiredField:
         """business_office_id 누락 → Pydantic ValidationError 발생"""
         with pytest.raises(ValidationError):
             RequestCreate(
-                pickup_date=date(2026, 8, 25),
+                pickup_date=VALID_PICKUP_DATE,
                 pickup_location_type=PickupLocationType.HOME,
                 pickup_address="서울시 강남구 테헤란로 123",
                 electric_bed_quantity=1,
@@ -212,7 +214,7 @@ class TestRejectMissingRequiredField:
         with pytest.raises(ValidationError):
             RequestCreate(
                 business_office_id=1,
-                pickup_date=date(2026, 8, 25),
+                pickup_date=VALID_PICKUP_DATE,
                 pickup_location_type=PickupLocationType.HOME,
                 electric_bed_quantity=1,
                 wheelchair_quantity=0,

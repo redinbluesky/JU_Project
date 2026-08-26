@@ -5,6 +5,16 @@
   "use strict";
 
   var form = document.getElementById("request-form");
+  var navToggle = document.getElementById("nav-toggle");
+  var appNav = document.getElementById("app-nav");
+  if (navToggle && appNav) {
+    navToggle.addEventListener("click", function () {
+      var expanded = navToggle.getAttribute("aria-expanded") === "true";
+      navToggle.setAttribute("aria-expanded", String(!expanded));
+      navToggle.setAttribute("aria-label", expanded ? "메뉴 열기" : "메뉴 닫기");
+      appNav.classList.toggle("is-open", !expanded);
+    });
+  }
 
   var detailActions = document.querySelectorAll("[data-status-action]");
   if (detailActions.length) {
@@ -41,6 +51,9 @@
 
   var liveStatus = document.getElementById("live-status");
   var submitBtn = document.getElementById("submit-btn");
+  var errorAlert = document.getElementById("error-alert");
+  var errorAlertMessage = document.getElementById("error-alert-message");
+  var errorAlertClose = errorAlert && errorAlert.querySelector(".error-alert__close");
 
   function setLive(message, kind) {
     if (!liveStatus) return;
@@ -50,9 +63,55 @@
     if (kind === "error") liveStatus.classList.add("is-error");
   }
 
+  function hideErrorAlert() {
+    if (!errorAlert) return;
+    errorAlert.setAttribute("aria-hidden", "true");
+    if (errorAlertMessage) errorAlertMessage.textContent = "";
+  }
+
+  function showErrorAlert(message) {
+    if (!errorAlert || !errorAlertMessage) return;
+    errorAlertMessage.textContent = message;
+    errorAlert.setAttribute("aria-hidden", "false");
+    errorAlert.focus();
+  }
+
+  function friendlyValidationMessage(detail) {
+    if (typeof detail === "string") return "입력한 내용을 확인해 주세요.";
+    if (!Array.isArray(detail) || !detail.length) return "입력값을 확인해 주세요.";
+    var messages = detail.map(function (item) {
+      var field = (item.loc || []).filter(Boolean).pop() || "";
+      var text = String(item.msg || "");
+      if (/quantity|수량|greater than|positive|non-negative|음수/i.test(field + " " + text)) {
+        return "수량은 0 이상으로 입력해 주세요.";
+      }
+      if (/pickup_date/i.test(field)) {
+        return "수거 희망일은 오늘 이후 날짜로 선택해 주세요.";
+      }
+      if (/date|날짜/i.test(field + " " + text)) {
+        return "수거 희망일을 확인해 주세요.";
+      }
+      if (/required|missing|필수/i.test(text)) return "필수 입력값을 확인해 주세요.";
+      if (/business_office_id/i.test(field)) return "사업소를 선택해 주세요.";
+      if (/pickup_address/i.test(field)) return "수거 주소를 입력해 주세요.";
+      if (/pickup_location_type/i.test(field)) return "장소 유형을 선택해 주세요.";
+      return "입력한 내용을 확인해 주세요.";
+    });
+    return messages.filter(function (message, index) {
+      return messages.indexOf(message) === index;
+    }).join(" ");
+  }
+
+  if (errorAlertClose) errorAlertClose.addEventListener("click", hideErrorAlert);
+  if (errorAlert) errorAlert.addEventListener("keydown", function (event) {
+    if (event.key === "Escape") {
+      event.preventDefault();
+      hideErrorAlert();
+    }
+  });
+
   form.addEventListener("submit", function (e) {
     e.preventDefault();
-
     var payload = {
       business_office_id: parseInt(form.business_office_id.value, 10),
       pickup_date: form.pickup_date.value,
@@ -63,9 +122,21 @@
       other_small_quantity: parseInt(form.other_small_quantity.value, 10) || 0,
     };
 
+    if (payload.electric_bed_quantity < 0 || payload.wheelchair_quantity < 0 || payload.other_small_quantity < 0) {
+      var negativeMessage = "수량은 0 이상으로 입력해 주세요.";
+      setLive(negativeMessage, "error");
+      showErrorAlert(negativeMessage);
+      return;
+    }
+    if (payload.electric_bed_quantity + payload.wheelchair_quantity + payload.other_small_quantity === 0) {
+      var quantityMessage = "품목 수량을 하나 이상 입력해 주세요.";
+      setLive(quantityMessage, "error");
+      showErrorAlert(quantityMessage);
+      return;
+    }
+
     if (submitBtn) submitBtn.disabled = true;
     setLive("접수 중입니다...", "info");
-
     fetch("/api/requests", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
@@ -74,38 +145,29 @@
       .then(function (res) {
         if (res.status === 201) {
           return res.json().then(function (data) {
-            setLive("접수 완료: " + data.request_no, "success");
-            form.reset();
+            window.location.assign("/requests/complete/" + data.id);
             return null;
           });
         }
         if (res.status === 422) {
           return res.json().then(function (body) {
-            var detail = body.detail;
-            var msg;
-            if (typeof detail === "string") {
-              msg = detail;
-            } else if (Array.isArray(detail) && detail.length > 0) {
-              msg = detail.map(function (d) {
-                var field = (d.loc || []).filter(Boolean).join(".");
-                return field ? field + ": " + d.msg : d.msg;
-              }).join(" / ");
-            } else {
-              msg = "입력값을 확인해 주세요.";
-            }
+            var msg = friendlyValidationMessage(body.detail);
             setLive(msg, "error");
+            showErrorAlert(msg);
             return null;
           });
         }
-        // 그 외 오류
-        return res.json().catch(function () { return null; }).then(function (body) {
-          var d = body && body.detail;
-          setLive(typeof d === "string" ? d : "접수 처리 중 오류가 발생했습니다.", "error");
+        return res.json().catch(function () { return null; }).then(function () {
+          var serverMessage = "접수 처리 중 오류가 발생했습니다. 잠시 후 다시 시도해 주세요.";
+          setLive(serverMessage, "error");
+          showErrorAlert(serverMessage);
           return null;
         });
       })
       .catch(function () {
-        setLive("네트워크 오류: 서버에 연결할 수 없습니다.", "error");
+        var networkMessage = "서버에 연결할 수 없습니다. 인터넷 연결을 확인하고 다시 시도해 주세요.";
+        setLive(networkMessage, "error");
+        showErrorAlert(networkMessage);
       })
       .finally(function () {
         if (submitBtn) submitBtn.disabled = false;

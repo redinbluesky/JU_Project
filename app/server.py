@@ -1,5 +1,6 @@
-from datetime import date, timedelta
+from datetime import date, datetime, timedelta, timezone
 from pathlib import Path
+from zoneinfo import ZoneInfo
 
 from fastapi import FastAPI, Request
 from fastapi.staticfiles import StaticFiles
@@ -38,6 +39,14 @@ NEXT_STATUS = {
     RequestStatus.PICKED_UP: RequestStatus.DISINFECTED,
     RequestStatus.DISINFECTED: RequestStatus.DELIVERED,
 }
+
+KST = ZoneInfo("Asia/Seoul")
+
+
+def _to_kst(value: datetime) -> datetime:
+    """Convert a UTC timestamp from storage to Asia/Seoul for UI display."""
+    utc_value = value.replace(tzinfo=timezone.utc) if value.tzinfo is None else value
+    return utc_value.astimezone(KST)
 
 
 def _office_choices() -> list[dict]:
@@ -92,6 +101,35 @@ def request_new_page(request: Request):
             "pickup_min": (date.today() + timedelta(days=1)).isoformat(),
         },
     )
+
+
+@app.get("/requests/complete/{request_id}", name="request_complete")
+def request_complete_page(request: Request, request_id: int):
+    """사용자용 신규 접수 완료 화면 (관리자 상세와 분리)."""
+    with SessionLocal() as db:
+        item = get_request(db, request_id)
+        if item is None:
+            return templates.TemplateResponse(
+                request,
+                "requests/notfound.html",
+                {"request_id": request_id},
+                status_code=404,
+            )
+        office = db.get(BusinessOffice, item.business_office_id)
+        completion = {
+            "request_no": item.request_no,
+            "office_name": office.name if office else f"사업소#{item.business_office_id}",
+            "pickup_date": item.pickup_date,
+            "pickup_location_type": item.pickup_location_type.value,
+            "pickup_address": item.pickup_address,
+            "electric_bed_quantity": item.electric_bed_quantity,
+            "wheelchair_quantity": item.wheelchair_quantity,
+            "other_small_quantity": item.other_small_quantity,
+            "total_quantity": item.electric_bed_quantity + item.wheelchair_quantity + item.other_small_quantity,
+            "status": item.current_status.value,
+            "status_label": STATUS_LABELS[item.current_status.value],
+        }
+    return templates.TemplateResponse(request, "requests/complete.html", {"item": completion})
 
 
 @app.get("/admin/requests", name="admin_requests_list")
@@ -174,15 +212,15 @@ def admin_request_detail(request: Request, request_id: int):
             "total_quantity": item.electric_bed_quantity + item.wheelchair_quantity + item.other_small_quantity,
             "status": status.value,
             "status_label": STATUS_LABELS[status.value],
-            "created_at": item.created_at,
-            "updated_at": item.updated_at,
+            "created_at": _to_kst(item.created_at),
+            "updated_at": _to_kst(item.updated_at),
             "completion_date": item.completion_date,
             "histories": [
                 {
                     "sequence": h.sequence,
                     "status": h.status.value,
                     "status_label": STATUS_LABELS[h.status.value],
-                    "changed_at": h.changed_at,
+                    "changed_at": _to_kst(h.changed_at),
                 }
                 for h in histories
             ],

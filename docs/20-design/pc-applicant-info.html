@@ -1,0 +1,1037 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>복지용구 신청 - 신청자 정보 확인 (PC 목업, WP-15-B)</title>
+<style>
+  /* ===== Design Tokens ===== */
+  :root{
+    --color-bg:#f5f6f8;
+    --color-surface:#ffffff;
+    --color-border:#d9dce1;
+    --color-border-strong:#b7bcc4;
+    --color-text:#1f2328;
+    --color-text-muted:#5b6572;
+    --color-primary:#1a56db;
+    --color-primary-dark:#123f9e;
+    --color-primary-contrast:#ffffff;
+    --color-success:#0f7a3d;
+    --color-success-bg:#e6f4ea;
+    --color-success-border:#8fd19e;
+    --color-danger:#c81e1e;
+    --color-danger-bg:#fdecec;
+    --color-danger-border:#f1a9a9;
+    --color-warning-bg:#fff7e6;
+    --color-warning-border:#e3a008;
+    --color-kakao-bg:#fef6da;
+    --color-kakao-border:#e8c33c;
+    --color-focus:#1a56db;
+    --space-1:4px;
+    --space-2:8px;
+    --space-3:12px;
+    --space-4:16px;
+    --space-5:24px;
+    --space-6:32px;
+    --space-7:48px;
+    --radius-sm:4px;
+    --radius-md:8px;
+    --radius-lg:12px;
+    --font-size-xs:12px;
+    --font-size-sm:13px;
+    --font-size-base:15px;
+    --font-size-md:16px;
+    --font-size-lg:20px;
+    --font-size-xl:24px;
+    --line-height-base:1.6;
+    --max-width:1280px;
+    --sidebar-width:260px;
+    --focus-ring:0 0 0 3px rgba(26,86,219,.35);
+    --transition-base:120ms ease-in-out;
+  }
+
+  *{box-sizing:border-box;}
+  html,body{margin:0;padding:0;}
+  body{
+    background:var(--color-bg);
+    color:var(--color-text);
+    font-family:"Pretendard","Malgun Gothic","Apple SD Gothic Neo",sans-serif;
+    font-size:var(--font-size-base);
+    line-height:var(--line-height-base);
+  }
+  h1,h2,h3{margin:0 0 var(--space-3) 0;font-weight:700;}
+  h1{font-size:var(--font-size-xl);}
+  h2{font-size:var(--font-size-lg);}
+  h3{font-size:var(--font-size-md);}
+  p{margin:0 0 var(--space-2) 0;}
+  ul{margin:0;padding-left:var(--space-5);}
+  a{color:var(--color-primary);}
+  button{font-family:inherit;font-size:var(--font-size-base);cursor:pointer;}
+  input,select,textarea{font-family:inherit;font-size:var(--font-size-base);}
+
+  :focus-visible{outline:none;box-shadow:var(--focus-ring);border-radius:var(--radius-sm);}
+
+  .skip-link{
+    position:absolute;left:-9999px;top:0;background:var(--color-primary);
+    color:var(--color-primary-contrast);padding:var(--space-2) var(--space-4);
+    z-index:100;border-radius:0 0 var(--radius-sm) 0;
+  }
+  .skip-link:focus{left:0;}
+
+  .visually-hidden{
+    position:absolute;width:1px;height:1px;padding:0;margin:-1px;overflow:hidden;
+    clip:rect(0,0,0,0);white-space:nowrap;border:0;
+  }
+
+  .page-shell{
+    max-width:var(--max-width);
+    margin:0 auto;
+    padding:var(--space-5) var(--space-5) var(--space-7);
+  }
+
+  /* ===== 상단 배너 (WP-15-B) ===== */
+  .site-banner img{
+    width:100%;
+    display:block;
+    height:auto;
+    border-radius:var(--radius-lg);
+    margin-bottom:calc(var(--space-6) * .56);
+    object-fit:cover;
+  }
+
+  /* ===== 상단: 좌측 빈 슬롯 + 신청자 정보 카드 (본문과 동일한 그리드) ===== */
+  .top-main-layout{
+    display:grid;
+    grid-template-columns:var(--sidebar-width) 1fr;
+    gap:var(--space-6);
+    margin-bottom:calc(var(--space-6) * .56);
+  }
+  .applicant-card{
+    background:var(--color-surface);
+    border:1px solid var(--color-border);
+    border-radius:var(--radius-lg);
+    padding:var(--space-5);
+    width:auto;
+    margin:0;
+  }
+  .applicant-card__header{
+    display:flex;align-items:baseline;justify-content:space-between;
+    margin-bottom:var(--space-4);
+  }
+  .applicant-card__title{font-size:var(--font-size-lg);font-weight:700;margin:0;}
+  .applicant-card__badge{
+    font-size:var(--font-size-sm);color:var(--color-text-muted);
+  }
+  .applicant-grid{
+    display:grid;
+    grid-template-columns:200px 1fr 1fr;
+    gap:var(--space-4);
+    align-items:end;
+  }
+  .input-with-btn{
+    display:flex;
+    align-items:center;
+    gap:var(--space-2);
+  }
+  .input-with-btn input{width:auto;flex:1 1 auto;}
+  .input-with-btn .btn{flex:0 0 auto;}
+  .field{display:flex;flex-direction:column;gap:var(--space-1);}
+  .field label{font-size:var(--font-size-sm);font-weight:600;color:var(--color-text);}
+  .field .required-mark{color:var(--color-danger);margin-left:2px;}
+  .field input[readonly]{
+    background:var(--color-bg);border:1px solid var(--color-border);
+    border-radius:var(--radius-sm);padding:var(--space-2) var(--space-3);
+    color:var(--color-text);
+  }
+  .field input[type="tel"],
+  .field input[type="text"],
+  .field input[type="number"],
+  .field input[type="date"],
+  .field select,
+  .field textarea{
+    border:1px solid var(--color-border-strong);
+    border-radius:var(--radius-sm);
+    padding:var(--space-2) var(--space-3);
+    background:var(--color-surface);
+    color:var(--color-text);
+    width:100%;
+  }
+  .field input[aria-invalid="true"],
+  .field select[aria-invalid="true"],
+  .field textarea[aria-invalid="true"]{
+    border-color:var(--color-danger);
+    background:var(--color-danger-bg);
+  }
+  .field-error{
+    font-size:var(--font-size-xs);color:var(--color-danger);min-height:16px;
+  }
+  .btn{
+    border-radius:var(--radius-sm);
+    padding:var(--space-2) var(--space-4);
+    border:1px solid var(--color-border-strong);
+    background:var(--color-surface);
+    color:var(--color-text);
+    font-weight:600;
+    white-space:nowrap;
+    transition:background var(--transition-base);
+  }
+  .btn:hover{background:var(--color-bg);}
+  .btn-primary{
+    background:var(--color-primary);
+    border-color:var(--color-primary);
+    color:var(--color-primary-contrast);
+  }
+  .btn-primary:hover{background:var(--color-primary-dark);}
+  .btn:disabled{opacity:.5;cursor:not-allowed;}
+  .btn-row{display:flex;gap:var(--space-2);}
+
+  .status-pill{
+    display:inline-flex;align-items:center;gap:var(--space-1);
+    font-size:var(--font-size-sm);font-weight:600;
+    padding:2px var(--space-2);border-radius:999px;
+    border:1px solid var(--color-border-strong);
+    color:var(--color-text-muted);
+  }
+  .status-pill[data-state="done"]{
+    color:var(--color-success);
+    background:var(--color-success-bg);
+    border-color:var(--color-success-border);
+  }
+  .status-pill::before{content:"○";}
+  .status-pill[data-state="done"]::before{content:"●";}
+
+  .cert-guide{
+    margin-top:var(--space-4);
+    display:flex;align-items:flex-start;gap:var(--space-3);
+    background:var(--color-warning-bg);
+    border:1px solid var(--color-warning-border);
+    border-radius:var(--radius-md);
+    padding:var(--space-3) var(--space-4);
+    font-size:var(--font-size-sm);
+    color:var(--color-text);
+  }
+  .cert-guide__icon{font-weight:700;color:var(--color-warning-border);flex:0 0 auto;}
+
+  .kakao-opt{
+    margin-top:var(--space-4);
+    display:flex;align-items:center;gap:var(--space-2);
+    background:var(--color-kakao-bg);
+    border:1px solid var(--color-kakao-border);
+    border-radius:var(--radius-md);
+    padding:var(--space-3) var(--space-4);
+  }
+  .kakao-opt input[type="checkbox"]{width:18px;height:18px;}
+  .kakao-opt label{font-size:var(--font-size-sm);font-weight:600;}
+  .kakao-opt .kakao-desc{font-size:var(--font-size-xs);color:var(--color-text-muted);margin-left:var(--space-2);}
+
+  /* ===== 본문: 사이드바 + 메인, 상단 카드와 시각적으로 분리 ===== */
+  .body-layout{
+    display:grid;
+    grid-template-columns:var(--sidebar-width) 1fr;
+    gap:var(--space-6);
+    padding-top:0;
+  }
+
+  .side-nav{
+    background:var(--color-surface);
+    border:1px solid var(--color-border);
+    border-radius:var(--radius-lg);
+    padding:var(--space-4);
+    align-self:stretch;
+    position:sticky;
+    top:var(--space-5);
+  }
+  .side-nav__section{margin-bottom:var(--space-4);}
+  .side-nav__section:last-child{margin-bottom:0;}
+  .side-nav__section-title{
+    font-size:var(--font-size-base);
+    font-weight:700;
+    color:var(--color-primary-contrast);
+    background:var(--color-primary);
+    margin:0 0 var(--space-2) 0;
+    padding:var(--space-2) var(--space-3);
+    border-radius:var(--radius-sm);
+  }
+  .side-nav ul{list-style:none;padding:0;margin:0;display:flex;flex-direction:column;gap:var(--space-1);}
+  .side-nav a{
+    display:block;
+    padding:var(--space-2) var(--space-3);
+    border-radius:var(--radius-sm);
+    color:var(--color-text);
+    text-decoration:none;
+    font-size:var(--font-size-sm);
+    border:1px solid transparent;
+    background:var(--color-surface);
+  }
+  .side-nav a:hover{background:var(--color-bg);}
+  .side-nav a[aria-current="page"]{
+    background:var(--color-bg);
+    border-color:var(--color-border);
+    font-weight:700;
+    color:var(--color-primary);
+  }
+  .side-nav__section li + li{border-top:1px solid var(--color-border);}
+
+  .main-content{display:flex;flex-direction:column;gap:calc(var(--space-6) * .56);}
+  .card{
+    background:var(--color-surface);
+    border:1px solid var(--color-border);
+    border-radius:var(--radius-lg);
+    padding:var(--space-5);
+  }
+  .card > h2{
+    padding-bottom:var(--space-3);
+    border-bottom:1px solid var(--color-border);
+    margin-bottom:var(--space-4);
+  }
+
+  .notice-box{
+    background:var(--color-warning-bg);
+    border:1px solid var(--color-warning-border);
+    border-radius:var(--radius-md);
+    padding:var(--space-4);
+  }
+  .notice-box ul{padding-left:var(--space-5);}
+  .notice-box li{margin-bottom:var(--space-2);font-size:var(--font-size-sm);}
+  .notice-box li:last-child{margin-bottom:0;}
+
+  .form-grid{
+    display:grid;
+    grid-template-columns:1fr 1fr;
+    gap:var(--space-4) var(--space-5);
+  }
+  .form-grid .field.span-2{grid-column:1 / -1;}
+  fieldset{border:none;padding:0;margin:0;}
+  legend{font-weight:600;margin-bottom:var(--space-2);padding:0;}
+
+  .radio-group{display:flex;gap:var(--space-4);}
+  .radio-group label{display:flex;align-items:center;gap:var(--space-1);font-weight:400;font-size:var(--font-size-base);}
+
+  .office-desc{
+    font-size:var(--font-size-sm);color:var(--color-text-muted);margin-bottom:var(--space-3);
+  }
+
+  table.item-table{width:100%;border-collapse:collapse;font-size:var(--font-size-sm);}
+  table.item-table caption{text-align:left;font-size:var(--font-size-xs);color:var(--color-text-muted);margin-bottom:var(--space-2);}
+  table.item-table th, table.item-table td{
+    border:1px solid var(--color-border);
+    padding:var(--space-2) var(--space-3);
+    text-align:left;
+    vertical-align:middle;
+  }
+  table.item-table th{background:var(--color-bg);font-weight:700;}
+  table.item-table input[type="number"]{width:80px;padding:4px 6px;border:1px solid var(--color-border-strong);border-radius:var(--radius-sm);}
+  table.item-table .qty-error{font-size:var(--font-size-xs);color:var(--color-danger);}
+  .category-tabs{display:flex;flex-wrap:wrap;gap:var(--space-2);margin-bottom:var(--space-3);}
+  .category-tab[aria-selected="true"]{background:var(--color-primary);color:var(--color-primary-contrast);}
+  .product-selection > #open-product-picker{margin-bottom:var(--space-4);}
+  .product-picker[hidden]{display:none;}
+  .product-picker{position:fixed;inset:0;z-index:20;display:grid;place-items:center;background:rgba(0,0,0,.45);padding:var(--space-4);}
+  .product-picker__panel{background:var(--color-surface);border-radius:var(--radius-lg);padding:var(--space-5);width:min(760px,100%);max-height:min(720px,100%);overflow:auto;}
+  .product-picker__notice{color:var(--color-danger);font-size:var(--font-size-sm);}
+  .product-picker__list{display:grid;gap:var(--space-2);margin:var(--space-3) 0;}
+  .product-picker__row{display:grid;grid-template-columns:1fr auto auto;gap:var(--space-3);align-items:center;border-bottom:1px solid var(--color-border);padding:var(--space-2);}
+  .product-picker__row input[type="number"],.selected-item-table input[type="number"]{width:72px;}
+
+  details.agreement{
+    border:1px solid var(--color-border);
+    border-radius:var(--radius-md);
+    padding:var(--space-3) var(--space-4);
+    margin-bottom:var(--space-3);
+  }
+  details.agreement summary{
+    cursor:pointer;font-weight:600;
+    outline-offset:2px;
+  }
+  details.agreement .agreement-body{
+    margin-top:var(--space-3);
+    font-size:var(--font-size-sm);
+    color:var(--color-text-muted);
+    max-height:160px;
+    overflow-y:auto;
+    padding-right:var(--space-2);
+    border-top:1px dashed var(--color-border);
+    padding-top:var(--space-3);
+  }
+  .agree-check{
+    display:flex;align-items:center;gap:var(--space-2);
+    margin-top:var(--space-3);
+  }
+  .agree-check input[type="checkbox"]{width:18px;height:18px;}
+  .agree-check label{font-weight:600;}
+  .agree-check .required-mark{color:var(--color-danger);}
+
+  .submit-row{
+    display:flex;justify-content:flex-end;align-items:center;gap:var(--space-3);
+  }
+  .submit-row .btn-primary{
+    font-size:var(--font-size-md);
+    padding:var(--space-3) var(--space-6);
+  }
+
+  #form-alert{
+    border:1px solid var(--color-danger-border);
+    background:var(--color-danger-bg);
+    color:var(--color-danger);
+    border-radius:var(--radius-md);
+    padding:var(--space-3) var(--space-4);
+    margin-bottom:var(--space-5);
+    font-size:var(--font-size-sm);
+    display:none;
+  }
+  #form-alert.show{display:block;}
+  #form-alert ul{padding-left:var(--space-5);margin-top:var(--space-2);}
+  #form-alert a{font-weight:600;}
+
+  #submit-success{
+    display:none;
+    border:1px solid var(--color-success-border);
+    background:var(--color-success-bg);
+    color:var(--color-success);
+    border-radius:var(--radius-md);
+    padding:var(--space-3) var(--space-4);
+    margin-bottom:var(--space-5);
+    font-size:var(--font-size-sm);
+    font-weight:600;
+  }
+  #submit-success.show{display:block;}
+
+  /* ===== 신청조회 모드: 신청자 정보 확인 섹션만 노출 (좌측 안내 메뉴는 화면 전환용으로 유지) ===== */
+  body.lookup-mode .body-layout,
+  body.lookup-mode .kakao-opt{
+    display:none;
+  }
+  body.lookup-mode #lookup-detail:not([hidden]){display:block;}
+  body.lookup-mode.lookup-verified #applicant-card{display:none;}
+  body:not(.lookup-mode) #lookup-detail{display:none !important;}
+  #lookup-detail{grid-column:2;grid-row:1;}
+  .cert-guide[hidden]{display:none;}
+
+  dl.detail-list{display:grid;grid-template-columns:160px 1fr;gap:var(--space-2) var(--space-4);margin:0;}
+  dl.detail-list dt{font-weight:600;color:var(--color-text-muted);}
+  dl.detail-list dd{margin:0;}
+
+  @media (max-width: 959px){
+    .page-shell{padding:var(--space-3);}
+    .top-main-layout,.body-layout{grid-template-columns:1fr;gap:var(--space-4);}
+    .top-main-layout .side-nav{position:static;}
+    #lookup-detail{grid-column:auto;grid-row:auto;}
+    .applicant-grid,.form-grid{grid-template-columns:1fr;}
+    .form-grid .field.span-2{grid-column:auto;}
+    table.item-table{display:block;overflow-x:auto;white-space:nowrap;}
+  }
+</style>
+</head>
+<body>
+<a class="skip-link" href="#main-content">본문 바로가기</a>
+
+<div class="page-shell">
+
+  <header class="site-banner">
+    <img src="../../runtime/generated/gwangju-welfare-disinfection-banner-pc.png" alt="광주 복지용구 위탁소독">
+  </header>
+
+  <form id="applicant-form" novalidate>
+
+  <!-- ============ 상단: 좌측 안내 메뉴 + 신청자 정보 카드 (본문과 동일한 폭 기준) ============ -->
+  <div class="top-main-layout">
+    <!-- 좌측 기존 안내 메뉴 (상단 카드와 같은 열로 이동) -->
+    <nav class="side-nav" aria-label="안내 메뉴">
+      <div class="side-nav__section">
+        <h2 class="side-nav__section-title">이용 안내</h2>
+        <ul>
+          <li><a href="#guide-howto">이용 방법</a></li>
+          <li><a href="#guide-process">처리 절차</a></li>
+          <li><a href="#guide-pickup-prep">수거 준비사항</a></li>
+        </ul>
+      </div>
+      <div class="side-nav__section">
+        <h2 class="side-nav__section-title">주문/조회</h2>
+        <ul>
+          <li><a href="pc-applicant-info.html" id="nav-new-application" aria-current="page">신규 신청</a></li>
+          <li><a href="#" id="nav-lookup">신청 조회</a></li>
+        </ul>
+      </div>
+    </nav>
+    <section class="applicant-card" id="applicant-card" aria-labelledby="applicant-card-title">
+      <div class="applicant-card__header">
+        <h1 id="applicant-card-title" class="applicant-card__title">신청자 정보 확인</h1>
+        <span class="applicant-card__badge">본인 명의 휴대전화 인증 후 신청 및 신청내역 조회가 가능합니다.</span>
+      </div>
+
+      <div id="form-alert" role="alert" tabindex="-1"></div>
+      <div id="submit-success" role="status"></div>
+
+      <div class="applicant-grid">
+        <div class="field">
+          <label for="applicant-name">신청자 이름</label>
+          <input type="text" id="applicant-name" name="applicant-name" value="홍길동" readonly aria-describedby="applicant-name-desc">
+          <span id="applicant-name-desc" class="field-error"></span>
+        </div>
+
+        <div class="field">
+          <label for="applicant-phone">휴대전화 번호<span class="required-mark" aria-hidden="true">*</span></label>
+          <div class="input-with-btn">
+            <input type="tel" id="applicant-phone" name="applicant-phone" placeholder="010-0000-0000"
+                   value="010-1234-5678" required
+                   pattern="01[016789]-\d{3,4}-\d{4}"
+                   aria-required="true" aria-describedby="phone-error">
+            <button type="button" id="cert-send-btn" class="btn btn-primary">인증번호 발송</button>
+          </div>
+          <span id="phone-error" class="field-error"></span>
+        </div>
+
+        <div class="field">
+          <label for="cert-code">인증번호<span class="required-mark" aria-hidden="true">*</span></label>
+          <div class="input-with-btn">
+            <input type="text" id="cert-code" name="cert-code" placeholder="6자리 숫자" inputmode="numeric" maxlength="6"
+                   aria-required="true" aria-describedby="cert-code-error">
+            <button type="button" id="cert-confirm-btn" class="btn btn-primary" disabled>인증완료</button>
+          </div>
+          <span id="cert-code-error" class="field-error"></span>
+        </div>
+      </div>
+
+      <div class="cert-guide">
+        <span class="cert-icon" aria-hidden="true">ⓘ</span>
+        <p style="margin:0;">
+          휴대전화 인증을 완료해야 <strong>신청내역 조회</strong> 및 신청서 제출이 가능합니다.
+          인증번호는 5분 이내에 입력해 주세요. 인증번호를 받지 못한 경우 &quot;인증번호 발송&quot; 버튼을 다시 눌러 주세요.
+        </p>
+      </div>
+
+      <div class="kakao-opt">
+        <input type="checkbox" id="kakao-notify" name="kakao-notify">
+        <label for="kakao-notify">카카오톡 알림 받기</label>
+        <span class="kakao-desc">(선택) 접수·수거·처리 상태를 카카오톡으로 안내받습니다. 미동의 시 문자로 안내됩니다.</span>
+      </div>
+    </section>
+
+    <!-- ============ 신청조회: 인증 완료 후 상세화면 (신청자 정보 확인 섹션과 배타적으로, 같은 위치에 표시) ============ -->
+    <section class="applicant-card" id="lookup-detail" aria-labelledby="lookup-detail-title" tabindex="-1" hidden>
+      <h2 id="lookup-detail-title">신청 상세화면</h2>
+      <dl class="detail-list">
+        <dt>신청번호</dt><dd>GJ-2026-000123</dd>
+        <dt>신청자</dt><dd id="detail-name">-</dd>
+        <dt>휴대전화</dt><dd id="detail-phone">-</dd>
+        <dt>처리 상태</dt><dd><span class="status-pill" data-state="done" role="status">수거 완료</span></dd>
+        <dt>서비스 사업소</dt><dd>가온복지용구센터 (관할: 동구)</dd>
+        <dt>수거 희망일</dt><dd>2026-08-28 오전 (09:00~12:00)</dd>
+        <dt>신청 품목</dt><dd>전동침대(대여) 1대, 수동휠체어(대여) 1대</dd>
+      </dl>
+      <div class="btn-row" style="margin-top:var(--space-4);">
+        <button type="button" id="lookup-back-btn" class="btn">신청자 정보 확인으로 돌아가기</button>
+      </div>
+    </section>
+  </div><!-- /.top-main-layout -->
+
+    <!-- ============ 본문: 상단 카드와 시각적으로만 구분 (좌측 빈 슬롯 + 메인) ============ -->
+    <div class="body-layout" id="body-layout">
+
+      <!-- 좌측 빈 슬롯 (안내 메뉴는 상단 신청자 카드 옆으로 이동됨) -->
+      <div aria-hidden="true"></div>
+
+      <!-- 메인 본문 -->
+      <div id="main-content" class="main-content">
+
+        <!-- 주의사항 -->
+        <section class="card" aria-labelledby="notice-title">
+          <h2 id="notice-title">주의사항</h2>
+          <div class="notice-box">
+            <ul>
+              <li>신청 정보는 실제 수거·배송 일정에 반영되므로 정확히 입력해 주세요.</li>
+              <li>서비스 제공 사업소는 신청자 소속 사업소와 다를 수 있으니 반드시 확인 후 선택해 주세요.</li>
+              <li>수거 희망일은 신청일 기준 최소 2영업일 이후로 선택 가능합니다.</li>
+              <li>제출 후에는 사업소 담당자를 통해서만 변경·취소가 가능합니다.</li>
+            </ul>
+          </div>
+        </section>
+
+        <!-- 서비스 제공 사업소 (신청자와 별도) -->
+        <section class="card" aria-labelledby="office-title">
+          <h2 id="office-title">서비스 제공 사업소 (신청자와 별도)</h2>
+          <p class="office-desc">실제로 복지용구를 제공·수거할 사업소를 선택하세요. 신청자 소속 사업소와 다를 수 있습니다.</p>
+          <div class="field">
+            <label for="service-office">제공 사업소<span class="required-mark" aria-hidden="true">*</span></label>
+            <select id="service-office" name="service-office" required aria-required="true" aria-describedby="service-office-error">
+              <option value="">사업소를 선택하세요</option>
+              <option value="office-a">가온복지용구센터 (관할: 동구)</option>
+              <option value="office-b">나래복지용구센터 (관할: 서구)</option>
+              <option value="office-c">다솜복지용구센터 (관할: 남구)</option>
+            </select>
+            <span id="service-office-error" class="field-error"></span>
+          </div>
+        </section>
+
+        <!-- 수거 정보 -->
+        <section class="card" aria-labelledby="pickup-title">
+          <h2 id="pickup-title">수거 정보</h2>
+          <div class="form-grid">
+            <div class="field">
+              <label for="pickup-date">수거 희망일<span class="required-mark" aria-hidden="true">*</span></label>
+              <input type="date" id="pickup-date" name="pickup-date" required aria-required="true" aria-describedby="pickup-date-error">
+              <span id="pickup-date-error" class="field-error"></span>
+            </div>
+            <div class="field">
+              <label for="pickup-time">수거 희망 시간대<span class="required-mark" aria-hidden="true">*</span></label>
+              <select id="pickup-time" name="pickup-time" required aria-required="true" aria-describedby="pickup-time-error">
+                <option value="">선택하세요</option>
+                <option value="am">오전 (09:00~12:00)</option>
+                <option value="pm">오후 (13:00~18:00)</option>
+                <option value="all">전일 가능</option>
+              </select>
+              <span id="pickup-time-error" class="field-error"></span>
+            </div>
+            <div class="field span-2">
+              <label for="pickup-address">수거지 주소<span class="required-mark" aria-hidden="true">*</span></label>
+              <input type="text" id="pickup-address" name="pickup-address" placeholder="예) 대전광역시 유성구 대학로 00 (샘플 주소)"
+                     required aria-required="true" aria-describedby="pickup-address-error">
+              <span id="pickup-address-error" class="field-error"></span>
+            </div>
+            <div class="field span-2">
+              <label for="pickup-address-detail">상세주소</label>
+              <input type="text" id="pickup-address-detail" name="pickup-address-detail" placeholder="동/호수 등 (선택)">
+              <span class="field-error"></span>
+            </div>
+            <div class="field span-2">
+              <label for="pickup-memo">수거 시 요청사항</label>
+              <textarea id="pickup-memo" name="pickup-memo" rows="3" placeholder="예) 공동현관 비밀번호, 반려동물 유무 등 (선택)"></textarea>
+              <span class="field-error"></span>
+            </div>
+          </div>
+        </section>
+
+        <!-- 복지용구 정보 -->
+        <section class="card product-selection" aria-labelledby="item-title">
+          <h2 id="item-title">복지용구 정보</h2>
+          <div class="category-tabs" role="tablist" aria-label="품목 카테고리">
+            <button type="button" class="btn btn-primary category-tab" data-category="전체" aria-selected="true">전체</button>
+            <button type="button" class="btn category-tab" data-category="의자" aria-selected="false">의자</button>
+            <button type="button" class="btn category-tab" data-category="침대" aria-selected="false">침대</button>
+            <button type="button" class="btn category-tab" data-category="보조차" aria-selected="false">보조차</button>
+            <button type="button" class="btn category-tab" data-category="보행기" aria-selected="false">보행기</button>
+          </div>
+          <table class="item-table selected-item-table">
+            <caption>선택한 품목은 수량을 0~5개로 변경할 수 있으며, 0개이면 목록에서 삭제됩니다.</caption>
+            <thead><tr><th>품목명</th><th>규격</th><th>대여/구매</th><th>수량</th><th>금액</th></tr></thead>
+            <tbody id="selected-products-body">
+              <tr class="placeholder-row"><td colspan="5">선택한 품목이 없습니다.</td></tr>
+              <tr class="placeholder-row"><td colspan="5">품목 버튼을 선택하여 추가해 주세요.</td></tr>
+            </tbody>
+            <tfoot><tr><th colspan="3">합계</th><td id="selected-total-quantity">합계 수량: 0</td><td id="selected-total-price">합계 금액: 0원</td></tr></tfoot>
+          </table>
+          <span id="item-select-error" class="field-error" role="alert"></span>
+        </section>
+
+        <div id="product-picker" class="product-picker" role="dialog" aria-modal="true" aria-labelledby="product-picker-title" hidden>
+          <div class="product-picker__panel">
+            <h2 id="product-picker-title">품목 선택</h2>
+            <p class="product-picker__notice">목록에 품목이 없으면 크기나 무게가 비슷한 품목을 선택하고 전달사항에 상세히 기재해 주세요.</p>
+            <div id="product-picker-count" role="status" aria-live="polite">선택 0건</div>
+            <div class="product-picker__list" id="product-picker-list"></div>
+            <div class="btn-row"><button type="button" id="product-picker-cancel" class="btn">취소</button><button type="button" id="product-picker-confirm" class="btn btn-primary">확인</button></div>
+          </div>
+        </div>
+
+        <!-- 개인정보 수집·이용 동의 -->
+        <section class="card" aria-labelledby="privacy-collect-title">
+          <h2 id="privacy-collect-title">개인정보 수집·이용 동의</h2>
+          <details class="agreement">
+            <summary>개인정보 수집·이용 내용 보기</summary>
+            <div class="agreement-body">
+              <p>1. 수집 항목: 이름, 휴대전화번호, 수거지 주소, 신청 품목 정보 (예시 텍스트, 실제 약관 아님)</p>
+              <p>2. 수집 목적: 복지용구 신청 접수, 수거 일정 조율, 처리 상태 안내</p>
+              <p>3. 보유 및 이용 기간: 서비스 제공 완료 후 1년 (관계 법령에 따라 변경될 수 있음)</p>
+              <p>4. 동의를 거부할 권리가 있으며, 거부 시 신청 접수가 제한될 수 있습니다.</p>
+            </div>
+          </details>
+          <div class="agree-check">
+            <input type="checkbox" id="agree-collect" name="agree-collect" required aria-required="true" aria-describedby="agree-collect-error">
+            <label for="agree-collect">개인정보 수집·이용에 동의합니다<span class="required-mark" aria-hidden="true">*</span> (필수)</label>
+          </div>
+          <span id="agree-collect-error" class="field-error"></span>
+        </section>
+
+        <!-- 개인정보 취급 위탁 동의 -->
+        <section class="card" aria-labelledby="privacy-entrust-title">
+          <h2 id="privacy-entrust-title">개인정보 취급 위탁 동의</h2>
+          <details class="agreement">
+            <summary>개인정보 취급 위탁 내용 보기</summary>
+            <div class="agreement-body">
+              <p>1. 수탁자: 제공 사업소 및 배송·수거 협력업체 (예시 텍스트, 실제 약관 아님)</p>
+              <p>2. 위탁 업무 내용: 복지용구 배송 및 수거 업무 수행</p>
+              <p>3. 위탁 기간: 위탁 계약 종료 시까지</p>
+              <p>4. 동의를 거부할 권리가 있으며, 거부 시 배송·수거 업무 수행이 제한될 수 있습니다.</p>
+            </div>
+          </details>
+          <div class="agree-check">
+            <input type="checkbox" id="agree-entrust" name="agree-entrust" required aria-required="true" aria-describedby="agree-entrust-error">
+            <label for="agree-entrust">개인정보 취급 위탁에 동의합니다<span class="required-mark" aria-hidden="true">*</span> (필수)</label>
+          </div>
+          <span id="agree-entrust-error" class="field-error"></span>
+        </section>
+
+        <!-- 신청하기 -->
+        <section class="card">
+          <div class="submit-row">
+            <button type="submit" id="submit-btn" class="btn btn-primary">신청하기</button>
+          </div>
+        </section>
+
+        <!-- 좌측 메뉴 앵커 대상 (참고용 앵커, 실제 내용은 관리자 가이드 문서 참조) -->
+        <div id="guide-howto" class="visually-hidden">이용방법 안내 섹션 자리표시자</div>
+        <div id="guide-process" class="visually-hidden">처리절차 안내 섹션 자리표시자</div>
+        <div id="guide-pickup-prep" class="visually-hidden">수거준비사항 안내 섹션 자리표시자</div>
+        <div id="guide-kakao" class="visually-hidden">카카오톡 알림 안내 섹션 자리표시자</div>
+        <div id="guide-privacy-policy" class="visually-hidden">개인정보 처리방침 섹션 자리표시자</div>
+
+      </div><!-- /.main-content -->
+    </div><!-- /.body-layout -->
+  </form>
+
+</div><!-- /.page-shell -->
+
+<script>
+(function(){
+  "use strict";
+
+  var certSent = false;
+  var certVerified = false;
+
+  var phoneInput = document.getElementById("applicant-phone");
+  var phoneError = document.getElementById("phone-error");
+  var certCodeInput = document.getElementById("cert-code");
+  var certCodeError = document.getElementById("cert-code-error");
+  var sendBtn = document.getElementById("cert-send-btn");
+  var confirmBtn = document.getElementById("cert-confirm-btn");
+  var statusPill = document.getElementById("cert-status-pill"); // 화면에서 제거됨(null-safe 처리)
+
+  function invalidateCertification(){
+    certVerified = false;
+    confirmBtn.disabled = true;
+    certCodeInput.removeAttribute("aria-invalid");
+    certCodeError.textContent = "전화번호 또는 인증번호가 변경되었습니다. 인증번호를 다시 발송하고 인증해 주세요.";
+  }
+
+  function phoneValid(){
+    return /^01[016789]-\d{3,4}-\d{4}$/.test(phoneInput.value.trim());
+  }
+
+  sendBtn.addEventListener("click", function(){
+    if(!phoneValid()){
+      phoneInput.setAttribute("aria-invalid","true");
+      phoneError.textContent = "휴대전화 번호 형식을 확인해 주세요. 예) 010-1234-5678";
+      phoneInput.focus();
+      return;
+    }
+    phoneInput.removeAttribute("aria-invalid");
+    phoneError.textContent = "";
+    certSent = true;
+    confirmBtn.disabled = false;
+    sendBtn.textContent = "인증번호 재발송";
+    certCodeError.textContent = "";
+    certCodeInput.focus();
+  });
+
+  phoneInput.addEventListener("input", function(){
+    if(certSent || certVerified){ invalidateCertification(); }
+  });
+
+  certCodeInput.addEventListener("input", function(){
+    if(certVerified){ invalidateCertification(); }
+  });
+
+  confirmBtn.addEventListener("click", function(){
+    var code = certCodeInput.value.trim();
+    if(!certSent){
+      certCodeError.textContent = "먼저 인증번호 발송 버튼을 눌러주세요.";
+      return;
+    }
+    if(!/^\d{6}$/.test(code)){
+      certCodeInput.setAttribute("aria-invalid","true");
+      certCodeError.textContent = "인증번호 6자리 숫자를 입력해 주세요.";
+      certCodeInput.focus();
+      return;
+    }
+    certCodeInput.removeAttribute("aria-invalid");
+    certCodeError.textContent = "";
+    certVerified = true;
+    if(statusPill){
+      statusPill.textContent = "인증완료";
+      statusPill.setAttribute("data-state","done");
+    }
+  });
+
+  var productCatalog = [
+    {id:"chair-1", category:"의자", name:"수동휠체어", specification:"표준형", rentalPrice:15000, purchasePrice:180000},
+    {id:"bed-1", category:"침대", name:"전동침대", specification:"2모터형", rentalPrice:26000, purchasePrice:420000},
+    {id:"cart-1", category:"보조차", name:"복지용구 보조차", specification:"실버카형", rentalPrice:10000, purchasePrice:120000},
+    {id:"walker-1", category:"보행기", name:"보행기", specification:"4발 접이식", rentalPrice:8000, purchasePrice:70000}
+  ];
+  var MAX_PRODUCT_QUANTITY = 5;
+  var selectedProducts = new Map();
+  var draftProducts = new Map();
+  var picker = document.getElementById("product-picker");
+  var pickerList = document.getElementById("product-picker-list");
+  var pickerCount = document.getElementById("product-picker-count");
+  var selectedBody = document.getElementById("selected-products-body");
+  var activeCategory = "전체";
+
+  function productPrice(product, rental_purchase){ return rental_purchase === "구매" ? product.purchasePrice : product.rentalPrice; }
+  function renderProductPicker(){
+    pickerList.innerHTML = "";
+    productCatalog.filter(function(product){ return activeCategory === "전체" || product.category === activeCategory; }).forEach(function(product){
+      ["대여", "구매"].forEach(function(rental_purchase){
+        var key = product.id + "|" + rental_purchase;
+        var selected = draftProducts.get(key);
+        var row = document.createElement("div"); row.className = "product-picker__row";
+        row.innerHTML = "<label><input type=\"checkbox\" data-product-key=\"" + key + "\" " + (selected ? "checked" : "") + "> " + product.name + " (" + product.specification + ") · " + rental_purchase + "</label>";
+        var quantity = document.createElement("input"); quantity.type = "number"; quantity.min = "1"; quantity.max = String(MAX_PRODUCT_QUANTITY); quantity.value = selected ? selected.quantity : "1"; quantity.disabled = !selected; quantity.setAttribute("aria-label", product.name + " " + rental_purchase + " 수량");
+        row.appendChild(quantity); pickerList.appendChild(row);
+        var checkbox = row.querySelector("input[type=checkbox]");
+        checkbox.addEventListener("change", function(){ quantity.disabled = !checkbox.checked; if(checkbox.checked){ draftProducts.set(key, {product:product, rental_purchase:rental_purchase, quantity:1}); } else { draftProducts.delete(key); } renderProductPicker(); });
+        quantity.addEventListener("change", function(){ var value = Number(quantity.value); if(value < 1 || value > MAX_PRODUCT_QUANTITY){ quantity.value = Math.min(MAX_PRODUCT_QUANTITY, Math.max(1, value || 1)); } var current = draftProducts.get(key); if(current){ current.quantity = Number(quantity.value); } });
+      });
+    });
+    pickerCount.textContent = "선택 " + draftProducts.size + "건";
+  }
+  function renderSelectedProducts(){
+    selectedBody.innerHTML = ""; var totalQuantity = 0; var totalPrice = 0;
+    selectedProducts.forEach(function(item, key){
+      totalQuantity += item.quantity; totalPrice += item.quantity * productPrice(item.product, item.rental_purchase);
+      var row = document.createElement("tr"); row.innerHTML = "<td>" + item.product.name + "</td><td>" + item.product.specification + "</td><td>" + item.rental_purchase + "</td>";
+      var qtyCell = document.createElement("td");
+      var minusButton = document.createElement("button"); minusButton.type="button"; minusButton.textContent="−"; minusButton.setAttribute("aria-label", item.product.name + " 수량 줄이기"); minusButton.addEventListener("click", function(){ var quantity = item.quantity - 1; if(quantity <= 0){ selectedProducts.delete(key); } else { item.quantity = quantity; } renderSelectedProducts(); });
+      var input = document.createElement("input"); input.type="number"; input.min="0"; input.max=String(MAX_PRODUCT_QUANTITY); input.value=String(item.quantity); input.setAttribute("aria-label", item.product.name + " 수량");
+      input.addEventListener("change", function(){ var quantity = Number(input.value); if(quantity <= 0){ selectedProducts.delete(key); } else { item.quantity = Math.min(MAX_PRODUCT_QUANTITY, quantity); } renderSelectedProducts(); });
+      var plusButton = document.createElement("button"); plusButton.type="button"; plusButton.textContent="＋"; plusButton.setAttribute("aria-label", item.product.name + " 수량 늘리기"); plusButton.disabled = item.quantity >= MAX_PRODUCT_QUANTITY; plusButton.addEventListener("click", function(){ if(item.quantity < MAX_PRODUCT_QUANTITY){ item.quantity += 1; renderSelectedProducts(); } });
+      qtyCell.appendChild(minusButton); qtyCell.appendChild(input); qtyCell.appendChild(plusButton); row.appendChild(qtyCell);
+      row.insertAdjacentHTML("beforeend", "<td>" + (item.quantity * productPrice(item.product, item.rental_purchase)).toLocaleString("ko-KR") + "원</td>"); selectedBody.appendChild(row);
+    });
+    document.getElementById("selected-total-quantity").textContent = "합계 수량: " + totalQuantity;
+    document.getElementById("selected-total-price").textContent = "합계 금액: " + totalPrice.toLocaleString("ko-KR") + "원";
+  }
+  function openProductPicker(){
+    draftProducts = new Map(Array.from(selectedProducts.entries()).map(function(entry){ return [entry[0], {product:entry[1].product, rental_purchase:entry[1].rental_purchase, quantity:entry[1].quantity}]; }));
+    renderProductPicker(); picker.hidden = false;
+  }
+  document.querySelectorAll(".category-tab").forEach(function(tab){ tab.addEventListener("click", function(){ activeCategory = tab.dataset.category; document.querySelectorAll(".category-tab").forEach(function(other){ other.setAttribute("aria-selected", String(other === tab)); other.classList.toggle("btn-primary", other === tab); }); openProductPicker(); }); });
+  document.getElementById("product-picker-cancel").addEventListener("click", function(){ picker.hidden = true; });
+  document.getElementById("product-picker-confirm").addEventListener("click", function(){ selectedProducts = draftProducts; renderSelectedProducts(); picker.hidden = true; });
+
+  // 복지용구 품목: 신청 체크 시 수량 입력 활성화
+  document.querySelectorAll(".item-select").forEach(function(cb){
+    cb.addEventListener("change", function(){
+      var row = cb.closest("tr");
+      var qty = row.querySelector(".item-qty");
+      var radios = row.querySelectorAll('input[type="radio"]');
+      qty.disabled = !cb.checked;
+      radios.forEach(function(r){ r.disabled = !cb.checked; });
+      if(!cb.checked){
+        row.querySelector(".qty-error").textContent = "";
+      }
+    });
+  });
+
+  var form = document.getElementById("applicant-form");
+  var alertBox = document.getElementById("form-alert");
+  var successBox = document.getElementById("submit-success");
+
+  function minimumPickupDate(baseDate){
+    var date = new Date(baseDate.getFullYear(), baseDate.getMonth(), baseDate.getDate());
+    var businessDays = 0;
+    while(businessDays < 2){
+      date.setDate(date.getDate() + 1);
+      if(date.getDay() !== 0 && date.getDay() !== 6){ businessDays += 1; }
+    }
+    return date;
+  }
+
+  function formatLocalDate(date){
+    return date.getFullYear() + "-" + String(date.getMonth() + 1).padStart(2, "0") + "-" + String(date.getDate()).padStart(2, "0");
+  }
+
+  var pickupDate = document.getElementById("pickup-date");
+  var minimumDate = minimumPickupDate(new Date());
+  pickupDate.setAttribute("min", formatLocalDate(minimumDate));
+
+  form.addEventListener("submit", function(e){
+    e.preventDefault();
+    successBox.classList.remove("show");
+    successBox.textContent = "";
+
+    var errors = [];
+
+    if(!phoneValid()){
+      phoneInput.setAttribute("aria-invalid","true");
+      phoneError.textContent = "휴대전화 번호 형식을 확인해 주세요.";
+      errors.push({id:"applicant-phone", msg:"휴대전화 번호를 올바르게 입력해 주세요."});
+    }
+
+    if(!certVerified){
+      errors.push({id:"cert-code", msg:"휴대전화 인증완료가 필요합니다."});
+    }
+
+    var officeSel = document.getElementById("service-office");
+    if(!officeSel.value){
+      officeSel.setAttribute("aria-invalid","true");
+      document.getElementById("service-office-error").textContent = "서비스 제공 사업소를 선택해 주세요.";
+      errors.push({id:"service-office", msg:"서비스 제공 사업소를 선택해 주세요."});
+    } else {
+      officeSel.removeAttribute("aria-invalid");
+      document.getElementById("service-office-error").textContent = "";
+    }
+
+    if(!pickupDate.value){
+      pickupDate.setAttribute("aria-invalid","true");
+      document.getElementById("pickup-date-error").textContent = "수거 희망일을 선택해 주세요.";
+      errors.push({id:"pickup-date", msg:"수거 희망일을 선택해 주세요."});
+    } else if(pickupDate.value < pickupDate.min){
+      pickupDate.setAttribute("aria-invalid","true");
+      document.getElementById("pickup-date-error").textContent = "수거 희망일은 신청일 기준 최소 2영업일 이후로 선택해 주세요.";
+      errors.push({id:"pickup-date", msg:"수거 희망일은 최소 2영업일 이후로 선택해 주세요."});
+    } else {
+      pickupDate.removeAttribute("aria-invalid");
+      document.getElementById("pickup-date-error").textContent = "";
+    }
+
+    var pickupTime = document.getElementById("pickup-time");
+    if(!pickupTime.value){
+      pickupTime.setAttribute("aria-invalid","true");
+      document.getElementById("pickup-time-error").textContent = "수거 희망 시간대를 선택해 주세요.";
+      errors.push({id:"pickup-time", msg:"수거 희망 시간대를 선택해 주세요."});
+    } else {
+      pickupTime.removeAttribute("aria-invalid");
+      document.getElementById("pickup-time-error").textContent = "";
+    }
+
+    var pickupAddress = document.getElementById("pickup-address");
+    if(!pickupAddress.value.trim()){
+      pickupAddress.setAttribute("aria-invalid","true");
+      document.getElementById("pickup-address-error").textContent = "수거지 주소를 입력해 주세요.";
+      errors.push({id:"pickup-address", msg:"수거지 주소를 입력해 주세요."});
+    } else {
+      pickupAddress.removeAttribute("aria-invalid");
+      document.getElementById("pickup-address-error").textContent = "";
+    }
+
+    var anyItemSelected = selectedProducts.size > 0;
+    var itemSelectError = document.getElementById("item-select-error");
+    if(!anyItemSelected){
+      itemSelectError.textContent = "신청할 복지용구를 최소 1개 이상 선택해 주세요.";
+      errors.push({id:"item-title", msg:"신청할 복지용구를 최소 1개 이상 선택해 주세요."});
+    } else {
+      itemSelectError.textContent = "";
+    }
+
+    var agreeCollect = document.getElementById("agree-collect");
+    if(!agreeCollect.checked){
+      document.getElementById("agree-collect-error").textContent = "필수 동의 항목입니다.";
+      errors.push({id:"agree-collect", msg:"개인정보 수집·이용에 동의해 주세요."});
+    } else {
+      document.getElementById("agree-collect-error").textContent = "";
+    }
+
+    var agreeEntrust = document.getElementById("agree-entrust");
+    if(!agreeEntrust.checked){
+      document.getElementById("agree-entrust-error").textContent = "필수 동의 항목입니다.";
+      errors.push({id:"agree-entrust", msg:"개인정보 취급 위탁에 동의해 주세요."});
+    } else {
+      document.getElementById("agree-entrust-error").textContent = "";
+    }
+
+    if(errors.length > 0){
+      var list = document.createElement("ul");
+      errors.forEach(function(err){
+        var li = document.createElement("li");
+        var a = document.createElement("a");
+        a.href = "#" + err.id;
+        a.textContent = err.msg;
+        a.addEventListener("click", function(evt){
+          evt.preventDefault();
+          var target = document.getElementById(err.id);
+          if(target){ target.focus(); }
+        });
+        li.appendChild(a);
+        list.appendChild(li);
+      });
+      alertBox.innerHTML = "<strong>입력값을 확인해 주세요.</strong>";
+      alertBox.appendChild(list);
+      alertBox.classList.add("show");
+      alertBox.focus();
+    } else {
+      alertBox.classList.remove("show");
+      alertBox.innerHTML = "";
+      successBox.textContent = "신청이 정상적으로 접수되었습니다. (목업 데모 - 실제 전송되지 않습니다)";
+      successBox.classList.add("show");
+    }
+  });
+
+  /* ===== 신청조회 화면 전환: 신청자 정보 확인 섹션만 노출, 인증 완료 시 상세화면 이동 ===== */
+  var navNew = document.getElementById("nav-new-application");
+  var navLookup = document.getElementById("nav-lookup");
+  var lookupDetail = document.getElementById("lookup-detail");
+  var lookupBackBtn = document.getElementById("lookup-back-btn");
+
+  function enterLookupMode(){
+    document.body.classList.add("lookup-mode");
+    document.body.classList.remove("lookup-verified");
+    lookupDetail.hidden = true;
+    navLookup.setAttribute("aria-current","page");
+    navNew.removeAttribute("aria-current");
+    // 신청조회 진입 시 인증 상태 초기화 (재조회마다 재인증 요구)
+    certSent = false;
+    certVerified = false;
+    confirmBtn.disabled = true;
+    sendBtn.textContent = "인증번호 발송";
+    certCodeInput.value = "";
+    certCodeError.textContent = "";
+    phoneError.textContent = "";
+    phoneInput.removeAttribute("aria-invalid");
+    certCodeInput.removeAttribute("aria-invalid");
+  }
+
+  function exitLookupMode(){
+    document.body.classList.remove("lookup-mode");
+    document.body.classList.remove("lookup-verified");
+    lookupDetail.hidden = true;
+    navNew.setAttribute("aria-current","page");
+    navLookup.removeAttribute("aria-current");
+  }
+
+  if(navLookup){
+    navLookup.addEventListener("click", function(e){
+      e.preventDefault();
+      enterLookupMode();
+    });
+  }
+  if(navNew){
+    navNew.addEventListener("click", function(e){
+      e.preventDefault();
+      exitLookupMode();
+    });
+  }
+  if(lookupBackBtn){
+    lookupBackBtn.addEventListener("click", function(){
+      enterLookupMode();
+      phoneInput.focus();
+    });
+  }
+
+  // 인증완료(confirmBtn) 클릭 시: 신청조회 모드에서는 신청자 정보 확인 섹션을 숨기고 상세화면으로 이동
+  confirmBtn.addEventListener("click", function(){
+    if(!document.body.classList.contains("lookup-mode")) return;
+    if(!certVerified) return; // 위 핸들러에서 형식 검증 실패 시 여기 도달하지 않음
+    document.getElementById("detail-name").textContent = phoneInput.closest("form") ?
+      (document.getElementById("applicant-name").value || "-") : "-";
+    document.getElementById("detail-phone").textContent = phoneInput.value.trim();
+    document.body.classList.add("lookup-verified");
+    lookupDetail.hidden = false;
+    lookupDetail.focus();
+  });
+
+})();
+</script>
+
+</body>
+</html>

@@ -1,0 +1,42 @@
+{% extends "base.html" %}
+{% block title %}접수 완료 — 복지용구 위탁소독{% endblock %}
+{% block content %}
+<section class="detail-card completion-card" aria-labelledby="completion-title">
+  <div class="detail-head">
+    <div>
+      <p class="detail-eyebrow">신규 접수</p>
+      <h1 id="completion-title" class="wd-heading-1">접수가 완료되었습니다</h1>
+      <p class="wd-body-2">입력하신 내용으로 접수되었습니다. 아래 접수번호를 확인해 주세요.</p>
+    </div>
+  </div>
+
+  <div class="detail-grid">
+    <article class="detail-panel">
+      <h2>접수 정보</h2>
+      <dl class="detail-list">
+        <div><dt>접수번호</dt><dd class="req-no">{{ item.request_no }}</dd></div>
+        <div><dt>사업소</dt><dd>{{ item.office_name }}</dd></div>
+        <div><dt>수거 희망일</dt><dd>{{ item.pickup_date }}</dd></div>
+        <div><dt>장소 유형</dt><dd>{{ item.pickup_location_type }}</dd></div>
+        <div><dt>주소</dt><dd>{{ item.pickup_address }}</dd></div>
+        <div><dt>현재 상태</dt><dd><span class="status-badge status-{{ item.status|lower }}">{{ item.status_label }}</span></dd></div>
+      </dl>
+    </article>
+
+    <article class="detail-panel">
+      <h2>품목 수량</h2>
+      <dl class="detail-quantity-list">
+        <div><dt>전동침대</dt><dd>{{ item.electric_bed_quantity }}</dd></div>
+        <div><dt>휠체어</dt><dd>{{ item.wheelchair_quantity }}</dd></div>
+        <div><dt>기타 소형</dt><dd>{{ item.other_small_quantity }}</dd></div>
+        <div class="detail-total"><dt>전체 수량</dt><dd>{{ item.total_quantity }}</dd></div>
+      </dl>
+    </article>
+  </div>
+
+  <div class="detail-actions">
+    <a class="btn-primary" href="/admin/requests">접수 목록으로 이동</a>
+    <a class="btn-ghost" href="/requests/new">새 접수하기</a>
+  </div>
+</section>
+{% endblock %}

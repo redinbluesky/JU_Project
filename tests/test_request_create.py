@@ -5,12 +5,14 @@
 import pytest
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
-from datetime import date, datetime, timezone
+from datetime import date, datetime, timedelta, timezone
 
 from app.main.db.base import Base
 from app.main.models.models import Request, RequestStatusHistory, BusinessOffice, RequestStatus, PickupLocationType, RequestNoCounter
 from app.main.schemas.request import RequestCreate
 from app.main.services.request_service import create_request
+
+VALID_PICKUP_DATE = date.today() + timedelta(days=1)
 
 
 @pytest.fixture
@@ -42,7 +44,7 @@ def sample_request_data():
     """정상 입력 데이터"""
     return RequestCreate(
         business_office_id=1,
-        pickup_date=date(2026, 8, 25),
+        pickup_date=VALID_PICKUP_DATE,
         pickup_location_type=PickupLocationType.HOME,
         pickup_address="서울시 강남구 테헤란로 123",
         electric_bed_quantity=1,
@@ -62,7 +64,7 @@ class TestCreateRequestSuccess:
         assert result.request_no == "R-0000000001"
         assert result.current_status == RequestStatus.RECEIVED
         assert result.business_office_id == 1
-        assert result.pickup_date == date(2026, 8, 25)
+        assert result.pickup_date == VALID_PICKUP_DATE
         assert result.electric_bed_quantity == 1
         assert result.wheelchair_quantity == 0
         assert result.other_small_quantity == 2

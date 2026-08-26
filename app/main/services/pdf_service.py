@@ -25,6 +25,15 @@ from app.main.models.models import Request
 # 문서 상단에 반드시 표시할 프로토타입 안내 문구
 PROTOTYPE_NOTICE = "기술 프로토타입 - 공단 제출용 아님"
 
+# PDF 는 사용자용 문서이므로 DB/API 내부 상태값을 그대로 노출하지 않는다.
+# server.py 의 화면 라벨을 import 하면 순환 import가 생기므로 서비스에 둔다.
+PDF_STATUS_LABELS = {
+    "RECEIVED": "접수",
+    "PICKED_UP": "수거완료",
+    "DISINFECTED": "소독완료",
+    "DELIVERED": "배달완료",
+}
+
 # 한글 렌더링용 TTF 후보 (OS 기본 설치 위치). 순서대로 존재하는 것 사용.
 _KR_FONT_CANDIDATES = [
     os.path.join(os.environ.get("WINDIR", "C:/Windows"), "Fonts", "malgun.ttf"),
@@ -57,6 +66,12 @@ def _kr_font_name() -> str:
     return "Helvetica"
 
 
+def _status_label(status) -> str:
+    """상태 enum을 PDF에 표시할 사용자용 한글 라벨로 변환한다."""
+    value = status.value if hasattr(status, "value") else str(status)
+    return PDF_STATUS_LABELS.get(value, value)
+
+
 def generate_request_pdf(request: Request, out_dir: Path | str | None = None) -> Path:
     """접수 PDF 를 생성하고 파일 경로를 반환한다.
 
@@ -85,7 +100,7 @@ def generate_request_pdf(request: Request, out_dir: Path | str | None = None) ->
 
     rows = [
         ("접수번호", request.request_no),
-        ("현재 상태", request.current_status.value),
+        ("현재 상태", _status_label(request.current_status)),
         ("사업소 ID", str(request.business_office_id)),
         ("수거희망일", str(request.pickup_date)),
         ("수거 유형", request.pickup_location_type.value),

@@ -130,11 +130,13 @@ class TestDetailPage:
         ):
             assert text in html, f"missing detail text: {text}"
 
-    def test_status_history_sequence_status_and_changed_at(self, client, detail_db):
+    def test_detail_timestamps_are_displayed_in_kst(self, client, detail_db):
         html = client.get(detail_url(detail_db, "received")).text
         assert "sequence" in html.lower() or "순번" in html
         assert re.search(r">1<", html)
-        assert "2026-09-01 09:30" in html
+        # created_at, updated_at, changed_at are stored as 09:30 UTC and shown as 18:30 KST.
+        assert html.count("2026-09-01 18:30") == 3
+        assert "2026-09-01 09:30" not in html
         assert "접수" in html
 
     def test_received_has_edit_link_and_next_status_button(self, client, detail_db):
