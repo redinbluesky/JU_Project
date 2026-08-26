@@ -88,3 +88,15 @@ def test_admin_banner_matches_wide_content_container():
     assert ".site-banner,.admin-card--wide" in css
     assert "max-width:960px" in css
     assert "margin:0 auto" in css
+
+
+def test_guide_menu_switches_right_panel_with_placeholder_copy():
+    html = Path("docs/20-design/pc-applicant-info.html").read_text(encoding="utf-8")
+    for key, label in (("howto", "이용 방법"), ("process", "처리 절차"), ("pickup-prep", "수거 준비사항")):
+        assert f'data-guide="{key}"' in html
+        assert label in html
+    assert 'id="guide-panel-title"' in html
+    assert 'id="guide-panel-message"' in html
+    assert "내용은 추후 추가 예정입니다." in html
+    assert "guide-link" in html
+    assert "guidePanelTitle.textContent" in html
