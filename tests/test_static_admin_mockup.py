@@ -3,6 +3,7 @@ from pathlib import Path
 
 
 HTML = Path("docs/20-design/admin-login.html").read_text(encoding="utf-8")
+APPLICANT_HTML = Path("docs/20-design/pc-applicant-info.html").read_text(encoding="utf-8")
 
 
 def test_admin_mockup_contains_login_list_detail_dashboard_views():
@@ -88,6 +89,12 @@ def test_admin_banner_matches_wide_content_container():
     assert ".site-banner,.admin-card--wide" in css
     assert "max-width:960px" in css
     assert "margin:0 auto" in css
+
+
+def test_applicant_tabs_reserve_scrollbar_and_use_responsive_viewport():
+    assert '<meta name="viewport" content="width=device-width, initial-scale=1">' in APPLICANT_HTML
+    css = APPLICANT_HTML.split("</style>", 1)[0]
+    assert "html{overflow-y:scroll;}" in css
 
 
 def test_guide_menu_switches_right_panel_with_placeholder_copy():
