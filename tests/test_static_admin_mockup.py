@@ -117,3 +117,12 @@ def test_new_application_has_no_pickup_prep_section_and_guide_panel_is_first_rig
     assert 'id="guide-pickup-prep"' not in html
     assert html.count(">수거 준비사항<") == 1
     assert html.index('id="guide-panel"') < html.index('id="notice-title"')
+
+
+def test_pickup_prep_selection_targets_top_guide_panel_and_hides_other_content():
+    html = Path("docs/20-design/pc-applicant-info.html").read_text(encoding="utf-8")
+    assert 'data-guide="pickup-prep" href="#guide-panel"' in html
+    assert 'id="guide-panel"' in html
+    assert 'guidePanelTitle.textContent = link.textContent' in html
+    assert 'body.guide-mode .main-content > :not(.guide-panel)' in html
+    assert html.index('id="guide-panel"') < html.index('id="notice-title"')
