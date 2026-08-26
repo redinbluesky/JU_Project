@@ -80,3 +80,11 @@ def test_pages_public_assets_and_admin_demo_warning_are_declared():
     assert "docs/20-design/admin-login.html" in workflow
     assert "docs/20-design/pc-applicant-info.html" in workflow
     assert "actions/deploy-pages" in workflow
+
+
+def test_admin_banner_matches_wide_content_container():
+    css = HTML.split("</style>", 1)[0]
+    assert ".site-banner" in css
+    assert ".site-banner,.admin-card--wide" in css
+    assert "max-width:960px" in css
+    assert "margin:0 auto" in css
