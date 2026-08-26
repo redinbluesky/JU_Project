@@ -406,6 +406,10 @@
   body.lookup-mode #lookup-detail:not([hidden]){display:block;}
   body.lookup-mode.lookup-verified #applicant-card{display:none;}
   body:not(.lookup-mode) #lookup-detail{display:none !important;}
+  body.guide-mode #applicant-card,
+  body.guide-mode #lookup-detail,
+  body.guide-mode .main-content > :not(.guide-panel){display:none !important;}
+  body.guide-mode .guide-panel{display:block;}
   #lookup-detail{grid-column:2;grid-row:1;}
   .cert-guide[hidden]{display:none;}
 
@@ -979,6 +983,8 @@
   document.querySelectorAll(".guide-link").forEach(function(link){
     link.addEventListener("click", function(e){
       e.preventDefault();
+      document.body.classList.remove("lookup-mode", "lookup-verified");
+      document.body.classList.add("guide-mode");
       guidePanelTitle.textContent = link.textContent;
       guidePanelMessage.textContent = "내용은 추후 추가 예정입니다.";
       document.querySelectorAll(".guide-link").forEach(function(item){ item.removeAttribute("aria-current"); });
@@ -995,7 +1001,7 @@
 
   function enterLookupMode(){
     document.body.classList.add("lookup-mode");
-    document.body.classList.remove("lookup-verified");
+    document.body.classList.remove("lookup-verified", "guide-mode");
     lookupDetail.hidden = true;
     navLookup.setAttribute("aria-current","page");
     navNew.removeAttribute("aria-current");
@@ -1014,6 +1020,7 @@
   function exitLookupMode(){
     document.body.classList.remove("lookup-mode");
     document.body.classList.remove("lookup-verified");
+    document.body.classList.remove("guide-mode");
     lookupDetail.hidden = true;
     navNew.setAttribute("aria-current","page");
     navLookup.removeAttribute("aria-current");

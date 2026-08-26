@@ -100,3 +100,13 @@ def test_guide_menu_switches_right_panel_with_placeholder_copy():
     assert "내용은 추후 추가 예정입니다." in html
     assert "guide-link" in html
     assert "guidePanelTitle.textContent" in html
+
+
+def test_guide_mode_replaces_entire_right_content_and_new_application_restores_it():
+    html = Path("docs/20-design/pc-applicant-info.html").read_text(encoding="utf-8")
+    css = html.split("</style>", 1)[0]
+    assert "body.guide-mode #applicant-card" in css
+    assert "body.guide-mode #lookup-detail" in css
+    assert "body.guide-mode .main-content > :not(.guide-panel)" in css
+    assert "document.body.classList.add(\"guide-mode\")" in html
+    assert "document.body.classList.remove(\"guide-mode\")" in html
