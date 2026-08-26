@@ -271,7 +271,7 @@
     color:var(--color-primary);
   }
   .side-nav__section li + li{border-top:1px solid var(--color-border);}
-  .guide-panel{padding:var(--space-5);}
+  .guide-panel{display:none;padding:var(--space-5);}
   .guide-panel__message{font-size:var(--font-size-md);line-height:1.7;margin:var(--space-3) 0 0;color:var(--color-text-muted);}
 
   .main-content{display:flex;flex-direction:column;gap:calc(var(--space-6) * .56);}
@@ -408,8 +408,8 @@
   body:not(.lookup-mode) #lookup-detail{display:none !important;}
   body.guide-mode #applicant-card,
   body.guide-mode #lookup-detail,
-  body.guide-mode .main-content > :not(.guide-panel){display:none !important;}
-  body.guide-mode .guide-panel{display:block;}
+  body.guide-mode .body-layout{display:none !important;}
+  body.guide-mode .guide-panel{display:block;grid-column:2;}
   #lookup-detail{grid-column:2;grid-row:1;}
   .cert-guide[hidden]{display:none;}
 
@@ -459,6 +459,10 @@
         </ul>
       </div>
     </nav>
+    <section class="card guide-panel" id="guide-panel" aria-labelledby="guide-panel-title" aria-live="polite" tabindex="-1">
+      <h2 id="guide-panel-title">이용 방법</h2>
+      <p id="guide-panel-message" class="guide-panel__message">내용은 추후 추가 예정입니다.</p>
+    </section>
     <section class="applicant-card" id="applicant-card" aria-labelledby="applicant-card-title">
       <div class="applicant-card__header">
         <h1 id="applicant-card-title" class="applicant-card__title">신청자 정보 확인</h1>
@@ -539,11 +543,6 @@
 
       <!-- 메인 본문 -->
       <div id="main-content" class="main-content">
-
-        <section class="card guide-panel" id="guide-panel" aria-labelledby="guide-panel-title" aria-live="polite" tabindex="-1">
-          <h2 id="guide-panel-title">이용 방법</h2>
-          <p id="guide-panel-message" class="guide-panel__message">내용은 추후 추가 예정입니다.</p>
-        </section>
 
         <!-- 주의사항 -->
         <section class="card" aria-labelledby="notice-title">
