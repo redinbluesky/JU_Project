@@ -125,3 +125,12 @@ def test_pickup_prep_selection_targets_top_guide_panel_and_hides_other_content()
     assert 'id="guide-panel"' in html
     assert 'guidePanelTitle.textContent = link.textContent' in html
     assert html.index('id="guide-panel"') < html.index('id="applicant-card"')
+
+
+def test_lookup_mode_keeps_kakao_notification_option_visible():
+    html = Path("docs/20-design/pc-applicant-info.html").read_text(encoding="utf-8")
+    assert 'id="kakao-notify"' in html
+    assert "카카오톡 알림 받기" in html
+    assert "접수·수거·처리 상태를 카카오톡으로 안내받습니다." in html
+    css = html.split("</style>", 1)[0]
+    assert "body.lookup-mode .kakao-opt" not in css
