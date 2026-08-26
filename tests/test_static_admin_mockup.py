@@ -110,3 +110,10 @@ def test_guide_mode_replaces_entire_right_content_and_new_application_restores_i
     assert "body.guide-mode .main-content > :not(.guide-panel)" in css
     assert "document.body.classList.add(\"guide-mode\")" in html
     assert "document.body.classList.remove(\"guide-mode\")" in html
+
+
+def test_new_application_has_no_pickup_prep_section_and_guide_panel_is_first_right_section():
+    html = Path("docs/20-design/pc-applicant-info.html").read_text(encoding="utf-8")
+    assert 'id="guide-pickup-prep"' not in html
+    assert html.count(">수거 준비사항<") == 1
+    assert html.index('id="guide-panel"') < html.index('id="notice-title"')
