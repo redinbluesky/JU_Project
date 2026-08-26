@@ -1,0 +1,40 @@
+name: Deploy public static mockups
+
+on:
+  push:
+    branches: [master]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+concurrency:
+  group: pages
+  cancel-in-progress: true
+
+jobs:
+  deploy:
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+      - name: Assemble public site
+        run: |
+          mkdir -p site/assets
+          cp docs/20-design/admin-login.html site/admin-login.html
+          cp docs/20-design/pc-applicant-info.html site/pc-applicant-info.html
+          cp docs/20-design/assets/gwangju-welfare-disinfection-banner-pc.png site/assets/gwangju-welfare-disinfection-banner-pc.png
+      - name: Configure Pages
+        uses: actions/configure-pages@v5
+      - name: Upload Pages artifact
+        uses: actions/upload-pages-artifact@v3
+        with:
+          path: site
+      - name: Deploy to GitHub Pages
+        id: deployment
+        uses: actions/deploy-pages@v4

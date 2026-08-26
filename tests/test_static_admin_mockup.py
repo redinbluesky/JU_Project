@@ -70,3 +70,13 @@ def test_admin_detail_spacing_and_full_width_controls():
     assert ".driver-assignment" in css and "font-size:inherit" in css
     assert ".driver-assignment" in css and "gap:var(--space-4)" in css
     assert ".admin-process-memo" in css and "width:100%" in css
+
+
+def test_pages_public_assets_and_admin_demo_warning_are_declared():
+    assert 'src="assets/gwangju-welfare-disinfection-banner-pc.png"' in HTML
+    assert "정적 데모" in HTML
+    assert "실제 인증·권한을 제공하지 않음" in HTML
+    workflow = Path(".github/workflows/pages.yml").read_text(encoding="utf-8")
+    assert "docs/20-design/admin-login.html" in workflow
+    assert "docs/20-design/pc-applicant-info.html" in workflow
+    assert "actions/deploy-pages" in workflow
