@@ -35,8 +35,12 @@ function doPost(e) {
     ];
     sheet.appendRow(rowValues);
     const rowNumber = sheet.getLastRow();
-    const savedRequestId = String(sheet.getRange(rowNumber, 2).getValue());
-    if (savedRequestId !== payload.request_id) throw new Error('row_write_verification_failed');
+    const savedValues = sheet.getRange(rowNumber, 2, 1, rowValues.length - 1).getValues()[0];
+    const expectedValues = rowValues.slice(1).map(String);
+    const actualValues = savedValues.map(String);
+    if (actualValues.some(function (value, index) { return value !== expectedValues[index]; })) {
+      throw new Error('row_write_verification_failed');
+    }
     return json_({ok: true, duplicate: false, request_id: payload.request_id, row: rowNumber});
   } catch (error) {
     return json_({ok: false, error: error.message || 'invalid_request'});
