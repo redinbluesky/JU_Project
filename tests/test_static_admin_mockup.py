@@ -103,6 +103,13 @@ def test_applicant_tabs_reserve_scrollbar_and_use_responsive_viewport():
     assert "html{overflow-y:scroll;}" in css
 
 
+def test_applicant_name_is_editable_in_new_and_lookup_modes():
+    assert 'id="applicant-name"' in APPLICANT_HTML
+    assert 'id="applicant-name" name="applicant-name" value="홍길동" readonly' not in APPLICANT_HTML
+    assert 'id="applicant-name" name="applicant-name"' in APPLICANT_HTML
+    assert 'lookup-mode .applicant-card input' not in APPLICANT_HTML
+
+
 def test_sheets_demo_wiring_is_optional_and_demo_only():
     assert "GOOGLE_SHEETS_WEB_APP_URL" in APPLICANT_HTML
     assert "demo: DEMO_ONLY" in APPLICANT_HTML
