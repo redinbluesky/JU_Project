@@ -862,6 +862,21 @@
   var minimumDate = minimumPickupDate(new Date());
   pickupDate.setAttribute("min", formatLocalDate(minimumDate));
 
+  function resetApplicationForm(){
+    form.reset();
+    certSent = false;
+    certVerified = false;
+    confirmBtn.disabled = true;
+    sendBtn.textContent = "인증번호 발송";
+    draftProducts = new Map();
+    selectedProducts = new Map();
+    renderSelectedProducts();
+    alertBox.classList.remove("show");
+    alertBox.innerHTML = "";
+    document.querySelectorAll(".field-error").forEach(function(error){ error.textContent = ""; });
+    form.querySelectorAll("[aria-invalid]").forEach(function(field){ field.removeAttribute("aria-invalid"); });
+  }
+
   form.addEventListener("submit", async function(e){
     e.preventDefault();
     successBox.classList.remove("show");
@@ -982,6 +997,7 @@
         }),
         kakao_notify: document.getElementById("kakao-notify").checked
       };
+      var saveSucceeded = false;
       if(GOOGLE_SHEETS_WEB_APP_URL){
         try {
           var response = await fetch(GOOGLE_SHEETS_WEB_APP_URL, {
@@ -991,15 +1007,18 @@
           });
           var result = await response.json();
           if(!response.ok || !result.ok) throw new Error("저장에 실패했습니다.");
+          saveSucceeded = true;
           successBox.textContent = result.duplicate ? "이미 저장된 데모 접수입니다." : "가상 데모 접수 데이터가 Google Sheets에 저장되었습니다.";
         } catch(error) {
           successBox.textContent = "Google Sheets 저장에 실패했습니다. 잠시 후 다시 시도해 주세요.";
           successBox.setAttribute("data-save-error", "true");
         }
       } else {
+        saveSucceeded = true;
         successBox.textContent = "신청이 정상적으로 접수되었습니다. (가상 데모 - Sheets URL 미설정으로 실제 전송되지 않습니다)";
       }
       successBox.classList.add("show");
+      if(saveSucceeded) resetApplicationForm();
     }
   });
 

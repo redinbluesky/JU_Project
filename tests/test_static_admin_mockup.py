@@ -130,6 +130,16 @@ def test_sheets_demo_wiring_is_optional_and_demo_only():
     assert "010-0000-0000" not in apps_script
 
 
+def test_successful_submit_resets_form_state_but_failure_keeps_values():
+    html = Path("docs/20-design/pc-applicant-info.html").read_text(encoding="utf-8")
+    assert "function resetApplicationForm()" in html
+    assert "form.reset();" in html
+    assert "selectedProducts = new Map();" in html
+    assert "draftProducts = new Map();" in html
+    assert "if(saveSucceeded) resetApplicationForm();" in html
+    assert "catch(error)" in html
+
+
 def test_guide_menu_switches_right_panel_with_placeholder_copy():
     html = Path("docs/20-design/pc-applicant-info.html").read_text(encoding="utf-8")
     for key, label in (("howto", "이용 방법"), ("process", "처리 절차"), ("pickup-prep", "수거 준비사항")):
