@@ -28,9 +28,12 @@ function doPost(e) {
     const safeProducts = payload.products.map(function (item) {
       return sanitizeCell_(item.name) + ' (' + item.rental_purchase + ') x' + item.quantity;
     }).join(', ');
+    const applicantName = sanitizeCell_(payload.applicant_name);
+    const phone = sanitizeCell_(payload.phone);
+    const address = sanitizeCell_(payload.address);
     const rowValues = [
-      new Date(), sanitizeCell_(payload.request_id), '데모 신청자', '010-0000-0000',
-      sanitizeCell_(payload.office), sanitizeCell_(payload.pickup_date), '광주광역시 데모 주소',
+      new Date(), sanitizeCell_(payload.request_id), applicantName, phone,
+      sanitizeCell_(payload.office), sanitizeCell_(payload.pickup_date), address,
       safeProducts, payload.kakao_notify === true ? 'Y' : 'N'
     ];
     sheet.appendRow(rowValues);
@@ -53,6 +56,9 @@ function validate_(payload) {
   if (!DEMO_ONLY || payload.demo !== true) throw new Error('demo_only');
   if (!/^[A-Za-z0-9_-]{16,80}$/.test(String(payload.request_id || ''))) throw new Error('invalid_request_id');
   if (!/^\d{4}-\d{2}-\d{2}$/.test(String(payload.pickup_date || ''))) throw new Error('invalid_pickup_date');
+  if (!payload.applicant_name || typeof payload.applicant_name !== 'string' || payload.applicant_name.length > 80) throw new Error('invalid_applicant_name');
+  if (!/^01[016789]-\d{3,4}-\d{4}$/.test(String(payload.phone || ''))) throw new Error('invalid_phone');
+  if (!payload.address || typeof payload.address !== 'string' || payload.address.length > 300) throw new Error('invalid_address');
   if (!payload.office || typeof payload.office !== 'string' || payload.office.length > 100) throw new Error('invalid_office');
   if (!Array.isArray(payload.products) || payload.products.length < 1 || payload.products.length > 20) throw new Error('invalid_products');
   payload.products.forEach(function (item) {

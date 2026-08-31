@@ -972,6 +972,9 @@
       var payload = {
         demo: DEMO_ONLY,
         request_id: "demo_" + Date.now() + "_" + Math.random().toString(36).slice(2, 10),
+        applicant_name: document.getElementById("applicant-name").value.trim(),
+        phone: phoneInput.value.trim(),
+        address: [pickupAddress.value.trim(), document.getElementById("pickup-address-detail").value.trim()].filter(Boolean).join(" "),
         pickup_date: pickupDate.value,
         office: officeSel.options[officeSel.selectedIndex].text,
         products: Array.from(selectedProducts.values()).map(function(item){

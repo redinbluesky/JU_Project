@@ -123,6 +123,11 @@ def test_sheets_demo_wiring_is_optional_and_demo_only():
     assert "sanitizeCell_" in apps_script
     assert "/^[=+\\-@]/" in apps_script
     assert "row_write_verification_failed" in apps_script
+    assert "applicant_name" in apps_script
+    assert "payload.phone" in apps_script
+    assert "payload.address" in apps_script
+    assert "데모 신청자" not in apps_script
+    assert "010-0000-0000" not in apps_script
 
 
 def test_guide_menu_switches_right_panel_with_placeholder_copy():

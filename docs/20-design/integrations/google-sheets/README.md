@@ -8,4 +8,4 @@
 4. 발급된 웹 앱 URL을 공개 HTML의 `GOOGLE_SHEETS_WEB_APP_URL`에 설정합니다. 이 URL은 공개 엔드포인트이므로 가상 데이터만 사용합니다.
 5. 가상 데이터로 정상 저장·동일 `request_id` 재전송·잘못된 payload 거부를 확인합니다.
 
-이 연동은 `DEMO_ONLY`가 true인 쓰기 전용 데모입니다. 이름·전화번호·주소는 서버에서 가상 값으로 치환하며 조회·수정 API를 제공하지 않습니다. 실제 개인정보 저장에는 공개 HTML/App Script 직접 호출을 사용하지 말고 인증된 자체 백엔드와 Sheets API OAuth를 사용해야 합니다.
+이 연동은 `DEMO_ONLY`가 true인 쓰기 전용 데모입니다. 이름·전화번호·주소는 제출 payload의 값을 수식 주입 방어 후 그대로 저장하므로 반드시 가상값만 입력해야 하며, 조회·수정 API를 제공하지 않습니다. 실제 개인정보 저장에는 공개 HTML/App Script 직접 호출을 사용하지 말고 인증된 자체 백엔드와 Sheets API OAuth를 사용해야 합니다.
