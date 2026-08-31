@@ -25,14 +25,19 @@ function doPost(e) {
       : [];
     if (requestIds.includes(payload.request_id)) return json_({ok: true, duplicate: true, request_id: payload.request_id});
 
-    const products = payload.products.map(function (item) {
-      return item.name + ' (' + item.rental_purchase + ') x' + item.quantity;
+    const safeProducts = payload.products.map(function (item) {
+      return sanitizeCell_(item.name) + ' (' + item.rental_purchase + ') x' + item.quantity;
     }).join(', ');
-    sheet.appendRow([
-      new Date(), payload.request_id, '데모 신청자', '010-0000-0000', payload.office,
-      payload.pickup_date, '광주광역시 데모 주소', products, payload.kakao_notify === true ? 'Y' : 'N'
-    ]);
-    return json_({ok: true, duplicate: false, request_id: payload.request_id});
+    const rowValues = [
+      new Date(), sanitizeCell_(payload.request_id), '데모 신청자', '010-0000-0000',
+      sanitizeCell_(payload.office), sanitizeCell_(payload.pickup_date), '광주광역시 데모 주소',
+      safeProducts, payload.kakao_notify === true ? 'Y' : 'N'
+    ];
+    sheet.appendRow(rowValues);
+    const rowNumber = sheet.getLastRow();
+    const savedRequestId = String(sheet.getRange(rowNumber, 2).getValue());
+    if (savedRequestId !== payload.request_id) throw new Error('row_write_verification_failed');
+    return json_({ok: true, duplicate: false, request_id: payload.request_id, row: rowNumber});
   } catch (error) {
     return json_({ok: false, error: error.message || 'invalid_request'});
   } finally {
@@ -51,6 +56,11 @@ function validate_(payload) {
     if (!['대여', '구매'].includes(item.rental_purchase)) throw new Error('invalid_rental_purchase');
     if (!Number.isInteger(item.quantity) || item.quantity < 1 || item.quantity > 5) throw new Error('invalid_quantity');
   });
+}
+
+function sanitizeCell_(value) {
+  const text = String(value == null ? '' : value);
+  return /^[=+\-@]/.test(text) ? "'" + text : text;
 }
 
 function getSheet_() {

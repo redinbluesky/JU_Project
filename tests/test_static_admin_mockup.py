@@ -113,6 +113,9 @@ def test_sheets_demo_wiring_is_optional_and_demo_only():
     assert "LockService" in apps_script
     assert "request_id" in apps_script
     assert "DEMO_ONLY" in apps_script
+    assert "sanitizeCell_" in apps_script
+    assert "/^[=+\\-@]/" in apps_script
+    assert "row_write_verification_failed" in apps_script
 
 
 def test_guide_menu_switches_right_panel_with_placeholder_copy():
