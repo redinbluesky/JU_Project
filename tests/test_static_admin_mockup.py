@@ -97,6 +97,24 @@ def test_applicant_tabs_reserve_scrollbar_and_use_responsive_viewport():
     assert "html{overflow-y:scroll;}" in css
 
 
+def test_applicant_tabs_reserve_scrollbar_and_use_responsive_viewport():
+    assert '<meta name="viewport" content="width=device-width, initial-scale=1">' in APPLICANT_HTML
+    css = APPLICANT_HTML.split("</style>", 1)[0]
+    assert "html{overflow-y:scroll;}" in css
+
+
+def test_sheets_demo_wiring_is_optional_and_demo_only():
+    assert "GOOGLE_SHEETS_WEB_APP_URL" in APPLICANT_HTML
+    assert "demo: DEMO_ONLY" in APPLICANT_HTML
+    assert "request_id" in APPLICANT_HTML
+    assert "fetch(GOOGLE_SHEETS_WEB_APP_URL" in APPLICANT_HTML
+    apps_script = Path("docs/20-design/integrations/google-sheets/Code.gs").read_text(encoding="utf-8")
+    assert "function doPost" in apps_script
+    assert "LockService" in apps_script
+    assert "request_id" in apps_script
+    assert "DEMO_ONLY" in apps_script
+
+
 def test_guide_menu_switches_right_panel_with_placeholder_copy():
     html = Path("docs/20-design/pc-applicant-info.html").read_text(encoding="utf-8")
     for key, label in (("howto", "이용 방법"), ("process", "처리 절차"), ("pickup-prep", "수거 준비사항")):

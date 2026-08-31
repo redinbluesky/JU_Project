@@ -698,6 +698,10 @@
 (function(){
   "use strict";
 
+  // 테스트용 Apps Script 웹 앱 URL만 입력하세요. 비워 두면 로컬 데모로만 동작합니다.
+  var GOOGLE_SHEETS_WEB_APP_URL = "";
+  var DEMO_ONLY = true;
+
   var certSent = false;
   var certVerified = false;
 
@@ -858,7 +862,7 @@
   var minimumDate = minimumPickupDate(new Date());
   pickupDate.setAttribute("min", formatLocalDate(minimumDate));
 
-  form.addEventListener("submit", function(e){
+  form.addEventListener("submit", async function(e){
     e.preventDefault();
     successBox.classList.remove("show");
     successBox.textContent = "";
@@ -965,7 +969,33 @@
     } else {
       alertBox.classList.remove("show");
       alertBox.innerHTML = "";
-      successBox.textContent = "신청이 정상적으로 접수되었습니다. (목업 데모 - 실제 전송되지 않습니다)";
+      var payload = {
+        demo: DEMO_ONLY,
+        request_id: "demo_" + Date.now() + "_" + Math.random().toString(36).slice(2, 10),
+        pickup_date: pickupDate.value,
+        office: officeSel.options[officeSel.selectedIndex].text,
+        products: Array.from(selectedProducts.values()).map(function(item){
+          return {name:item.product.name, rental_purchase:item.rental_purchase, quantity:item.quantity};
+        }),
+        kakao_notify: document.getElementById("kakao-notify").checked
+      };
+      if(GOOGLE_SHEETS_WEB_APP_URL){
+        try {
+          var response = await fetch(GOOGLE_SHEETS_WEB_APP_URL, {
+            method:"POST",
+            headers:{"Content-Type":"text/plain;charset=utf-8"},
+            body:JSON.stringify(payload)
+          });
+          var result = await response.json();
+          if(!response.ok || !result.ok) throw new Error("저장에 실패했습니다.");
+          successBox.textContent = result.duplicate ? "이미 저장된 데모 접수입니다." : "가상 데모 접수 데이터가 Google Sheets에 저장되었습니다.";
+        } catch(error) {
+          successBox.textContent = "Google Sheets 저장에 실패했습니다. 잠시 후 다시 시도해 주세요.";
+          successBox.setAttribute("data-save-error", "true");
+        }
+      } else {
+        successBox.textContent = "신청이 정상적으로 접수되었습니다. (가상 데모 - Sheets URL 미설정으로 실제 전송되지 않습니다)";
+      }
       successBox.classList.add("show");
     }
   });
