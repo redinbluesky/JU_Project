@@ -70,7 +70,7 @@ def client(test_db):
 def _create_payload() -> dict:
     return {
         "business_office_id": 1,
-        "pickup_date": "2026-09-01",
+        "pickup_date": "2099-09-01",
         "pickup_location_type": "자택",
         "pickup_address": "서울시 강남구 테헤란로 123",
         "electric_bed_quantity": 1,
@@ -116,7 +116,7 @@ class TestServerErrorNoLeak:
         r = client.patch(
             f"/api/requests/{req_id}",
             json={
-                "pickup_date": "2026-09-02",
+                "pickup_date": "2099-09-02",
                 "pickup_location_type": "자택",
                 "pickup_address": "수정 주소",
                 "electric_bed_quantity": 1,
@@ -160,7 +160,7 @@ class TestExistingConflictBehavior:
         r = client.patch(
             "/api/requests/99999",
             json={
-                "pickup_date": "2026-09-02",
+                "pickup_date": "2099-09-02",
                 "pickup_location_type": "자택",
                 "pickup_address": "주소",
                 "electric_bed_quantity": 1,
@@ -191,7 +191,7 @@ class TestExistingConflictBehavior:
         r = client.patch(
             f"/api/requests/{req_id}",
             json={
-                "pickup_date": "2026-09-02",
+                "pickup_date": "2099-09-02",
                 "pickup_location_type": "자택",
                 "pickup_address": "주소",
                 "electric_bed_quantity": 1,

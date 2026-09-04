@@ -36,7 +36,7 @@ def detail_db():
     Base.metadata.create_all(engine)
     factory = sessionmaker(bind=engine, autocommit=False, expire_on_commit=False)
     db = factory()
-    now = datetime(2026, 9, 1, 9, 30, tzinfo=timezone.utc)
+    now = datetime(2099, 9, 1, 9, 30, tzinfo=timezone.utc)
     office = BusinessOffice(code="OFFICE_A", name="서울사업소", created_at=now)
     db.add(office)
     db.commit()
@@ -46,13 +46,13 @@ def detail_db():
         ("received", RequestStatus.RECEIVED, None),
         ("picked_up", RequestStatus.PICKED_UP, None),
         ("disinfected", RequestStatus.DISINFECTED, None),
-        ("delivered", RequestStatus.DELIVERED, date(2026, 9, 5)),
+        ("delivered", RequestStatus.DELIVERED, date(2099, 9, 5)),
     ]
     for index, (key, status, completion_date) in enumerate(statuses, start=1):
         request = RequestModel(
             request_no=f"R-20260901-{index:04d}",
             business_office_id=office.id,
-            pickup_date=date(2026, 9, index),
+            pickup_date=date(2099, 9, index),
             pickup_location_type=PickupLocationType.HOME,
             pickup_address=f"서울시 강남구 테스트로 {index}",
             current_status=status,
@@ -71,7 +71,7 @@ def detail_db():
                 RequestStatusHistory(
                     request_id=request.id,
                     status=history_status,
-                    changed_at=datetime(2026, 9, sequence, 9, 30, tzinfo=timezone.utc),
+                    changed_at=datetime(2099, 9, sequence, 9, 30, tzinfo=timezone.utc),
                     sequence=sequence,
                 )
             )
@@ -113,7 +113,7 @@ class TestDetailPage:
             "접수 상세",
             "R-20260901-0001",
             "서울사업소",
-            "2026-09-01",
+            "2099-09-01",
             "자택",
             "서울시 강남구 테스트로 1",
             "전동침대",
@@ -135,8 +135,8 @@ class TestDetailPage:
         assert "sequence" in html.lower() or "순번" in html
         assert re.search(r">1<", html)
         # created_at, updated_at, changed_at are stored as 09:30 UTC and shown as 18:30 KST.
-        assert html.count("2026-09-01 18:30") == 3
-        assert "2026-09-01 09:30" not in html
+        assert html.count("2099-09-01 18:30") == 3
+        assert "2099-09-01 09:30" not in html
         assert "접수" in html
 
     def test_received_has_edit_link_and_next_status_button(self, client, detail_db):
@@ -159,7 +159,7 @@ class TestDetailPage:
 
     def test_delivered_has_completion_date_and_pdf(self, client, detail_db):
         html = client.get(detail_url(detail_db, "delivered")).text
-        assert "2026-09-05" in html
+        assert "2099-09-05" in html
         assert "/api/requests/4/pdf" in html
         assert "PDF 다운로드" in html
         assert "다음 상태" not in html

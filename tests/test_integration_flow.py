@@ -66,7 +66,7 @@ def client(test_db):
 def _create_payload() -> dict:
     return {
         "business_office_id": 1,
-        "pickup_date": "2026-09-01",
+        "pickup_date": "2099-09-01",
         "pickup_location_type": "자택",
         "pickup_address": "서울시 강남구 테헤란로 123",
         "electric_bed_quantity": 1,
@@ -115,7 +115,7 @@ class TestCoreBusinessFlow:
         r = client.patch(
             f"/api/requests/{req_id}",
             json={
-                "pickup_date": "2026-09-02",
+                "pickup_date": "2099-09-02",
                 "pickup_location_type": "사업소",
                 "pickup_address": "서울시 강남구 테헤란로 456",
                 "electric_bed_quantity": 2,
@@ -125,7 +125,7 @@ class TestCoreBusinessFlow:
         )
         assert r.status_code == 200, r.text
         body = r.json()
-        assert body["pickup_date"] == "2026-09-02"
+        assert body["pickup_date"] == "2099-09-02"
         assert body["pickup_address"] == "서울시 강남구 테헤란로 456"
         assert (body["electric_bed_quantity"], body["wheelchair_quantity"], body["other_small_quantity"]) == (2, 1, 0)
 

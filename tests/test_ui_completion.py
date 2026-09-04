@@ -35,7 +35,7 @@ def completion_db(monkeypatch):
     item = RequestModel(
         request_no="R-20260901-0101",
         business_office_id=office.id,
-        pickup_date=date(2026, 9, 1),
+        pickup_date=date(2099, 9, 1),
         pickup_location_type=PickupLocationType.HOME,
         pickup_address="서울시 강남구 테헤란로 123",
         current_status=RequestStatus.RECEIVED,
@@ -65,7 +65,7 @@ def test_completion_page_is_dedicated_route_with_request_summary(completion_db):
     for value in (
         completion_db["request_no"],
         "서울사업소",
-        "2026-09-01",
+        "2099-09-01",
         "자택",
         "서울시 강남구 테헤란로 123",
         "전동침대",

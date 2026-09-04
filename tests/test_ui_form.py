@@ -203,7 +203,7 @@ class TestApiRegression:
     def test_create_request_still_works(self, client):
         payload = {
             "business_office_id": 1,
-            "pickup_date": "2026-09-01",
+            "pickup_date": "2099-09-01",
             "pickup_location_type": "자택",
             "pickup_address": "서울시 강남구 테헤란로 123",
             "electric_bed_quantity": 1,

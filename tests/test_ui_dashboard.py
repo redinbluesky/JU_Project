@@ -31,7 +31,7 @@ def dashboard_db():
     Base.metadata.create_all(engine)
     factory = sessionmaker(bind=engine, autocommit=False, expire_on_commit=False)
     db = factory()
-    now = datetime(2026, 9, 1, 9, 30, tzinfo=timezone.utc)
+    now = datetime(2099, 9, 1, 9, 30, tzinfo=timezone.utc)
     offices = [
         BusinessOffice(code="OFFICE_A", name="서울사업소", created_at=now),
         BusinessOffice(code="OFFICE_B", name="부산사업소", created_at=now),
@@ -40,10 +40,10 @@ def dashboard_db():
     db.commit()
 
     rows = [
-        (offices[0].id, date(2026, 9, 1), RequestStatus.RECEIVED, 1, 1, 1),
-        (offices[0].id, date(2026, 9, 2), RequestStatus.PICKED_UP, 2, 1, 2),
-        (offices[1].id, date(2026, 9, 3), RequestStatus.DISINFECTED, 3, 1, 3),
-        (offices[1].id, date(2026, 9, 4), RequestStatus.DELIVERED, 4, 1, 2),
+        (offices[0].id, date(2099, 9, 1), RequestStatus.RECEIVED, 1, 1, 1),
+        (offices[0].id, date(2099, 9, 2), RequestStatus.PICKED_UP, 2, 1, 2),
+        (offices[1].id, date(2099, 9, 3), RequestStatus.DISINFECTED, 3, 1, 3),
+        (offices[1].id, date(2099, 9, 4), RequestStatus.DELIVERED, 4, 1, 2),
     ]
     for index, (office_id, pickup_date, status, bed, wheelchair, other) in enumerate(rows, start=1):
         item = RequestModel(
@@ -127,12 +127,12 @@ class TestDashboardPage:
 
     def test_date_filter_values_are_preserved_and_change_statistics(self, client):
         response = client.get(
-            "/admin/dashboard?pickup_date_from=2026-09-02&pickup_date_to=2026-09-03"
+            "/admin/dashboard?pickup_date_from=2099-09-02&pickup_date_to=2099-09-03"
         )
         assert response.status_code == 200
         html = response.text
-        assert 'value="2026-09-02"' in html
-        assert 'value="2026-09-03"' in html
+        assert 'value="2099-09-02"' in html
+        assert 'value="2099-09-03"' in html
         assert "2건" in html
         assert ">5<" in html  # bed: 2 + 3
         assert ">2<" in html  # wheelchair: 1 + 1

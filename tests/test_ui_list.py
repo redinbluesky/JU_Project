@@ -65,7 +65,7 @@ def seeded_db():
     req = RequestModel(
         request_no="R-20260901-0101",
         business_office_id=office.id,
-        pickup_date=date(2026, 9, 1),
+        pickup_date=date(2099, 9, 1),
         pickup_location_type=PickupLocationType.HOME,  # "자택"
         pickup_address="서울시 강남구 테헤란로 123",
         current_status=RequestStatus.RECEIVED,
@@ -227,8 +227,8 @@ class TestFilterRetained:
         resp = client.get(
             "/admin/requests",
             params={
-                "pickup_date_from": "2026-09-01",
-                "pickup_date_to": "2026-09-30",
+                "pickup_date_from": "2099-09-01",
+                "pickup_date_to": "2099-09-30",
                 "current_status": "RECEIVED",
             },
         )
@@ -237,10 +237,10 @@ class TestFilterRetained:
     def test_date_values_retained(self, client):
         html = client.get(
             "/admin/requests",
-            params={"pickup_date_from": "2026-09-01", "pickup_date_to": "2026-09-30"},
+            params={"pickup_date_from": "2099-09-01", "pickup_date_to": "2099-09-30"},
         ).text
-        _assert_has(html, 'value="2026-09-01"', "from date value")
-        _assert_has(html, 'value="2026-09-30"', "to date value")
+        _assert_has(html, 'value="2099-09-01"', "from date value")
+        _assert_has(html, 'value="2099-09-30"', "to date value")
 
     def test_status_select_selected(self, client):
         html = client.get(
