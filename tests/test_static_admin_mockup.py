@@ -13,13 +13,15 @@ def test_admin_list_actions_put_logout_below_horizontal_navigation_row():
     assert 'id="admin-list-logout"' in HTML
     assert 'id="admin-list-refresh"' in HTML
     assert ".admin-list-actions__top{display:flex" in HTML
-    assert ".admin-list-actions__top{flex-wrap:wrap;" in HTML
+    assert ".admin-list-actions__top,.admin-dashboard-actions__top{flex-wrap:wrap;" in HTML
 
 
 def test_admin_refresh_buttons_preserve_current_view_filters_and_block_duplicates():
     for marker in ("admin-list-refresh", "admin-dashboard-refresh", "loadSheetRequests(this)", "loadDashboardStats(this)", ".finally(function(){ if(refreshButton) refreshButton.disabled=false; })"):
         assert marker in HTML
-    assert "admin-action-stack" in HTML
+    assert "admin-dashboard-actions" in HTML
+    assert "admin-dashboard-actions__top" in HTML
+    assert "admin-action-stack" not in HTML
     assert "데이터를 불러오지 못했습니다." in HTML
     assert "통계 데이터를 불러오지 못했습니다." in HTML
 
