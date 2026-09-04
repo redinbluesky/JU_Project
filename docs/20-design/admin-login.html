@@ -142,6 +142,7 @@
   .btn-primary:hover{background:var(--color-primary-dark);}
   .btn:disabled{opacity:.5;cursor:not-allowed;}
   .btn-row{display:flex;gap:var(--space-2);align-items:center;}
+  .admin-action-stack{display:flex;flex-direction:column;gap:var(--space-2);align-items:stretch;}
 
   .status-pill{
     display:inline-flex;align-items:center;gap:var(--space-1);
@@ -282,7 +283,7 @@
     .admin-filter-controls .submit-row{grid-column:auto;}
     .admin-card{padding:var(--space-4);}
     .admin-card__header,.submit-row{align-items:flex-start;flex-direction:column;}
-    .admin-card__header .btn-row{width:100%;justify-content:space-between;}
+    .admin-card__header .btn-row,.admin-card__header .admin-action-stack{width:100%;}
   }
 </style>
 </head>
@@ -348,7 +349,7 @@
     <!-- ============ 관리자 접수 목록 화면 ============ -->
     <div class="admin-shell" id="admin-list-view">
       <section class="admin-card admin-card--wide" aria-labelledby="admin-list-title">
-        <div class="admin-card__header"><h1 id="admin-list-title" class="admin-card__title">접수 목록</h1><div class="btn-row"><button type="button" class="btn admin-nav" data-view="dashboard">통계 대시보드</button><button type="button" class="btn" id="admin-list-logout">로그아웃</button></div></div>
+        <div class="admin-card__header"><h1 id="admin-list-title" class="admin-card__title">접수 목록</h1><div class="admin-action-stack"><button type="button" class="btn admin-nav" data-view="dashboard">통계 대시보드</button><button type="button" class="btn" id="admin-list-logout">로그아웃</button><button type="button" class="btn" id="admin-list-refresh">새로고침</button></div></div>
         <form id="admin-filter-form" class="admin-filter-controls" role="search" aria-label="목록 필터">
           <div class="field"><label for="pickup-date-from">시작일</label><input type="date" id="pickup-date-from"></div>
           <div class="field"><label for="pickup-date-to">종료일</label><input type="date" id="pickup-date-to"></div>
@@ -378,11 +379,7 @@
       <section class="admin-card admin-card--wide" id="admin-dashboard-card" aria-labelledby="admin-dashboard-title" tabindex="-1">
         <div class="admin-card__header">
           <h1 id="admin-dashboard-title" class="admin-card__title">관리자 대시보드 (목업)</h1>
-          <div class="btn-row">
-            <span class="status-pill" data-state="done" role="status">admin 로그인됨</span>
-            <button type="button" class="btn admin-nav" data-view="list">접수 목록</button>
-            <button type="button" id="admin-logout-btn" class="btn">로그아웃</button>
-          </div>
+          <div class="admin-action-stack"><span class="status-pill" data-state="done" role="status">admin 로그인됨</span><button type="button" class="btn admin-nav" data-view="list">접수 목록</button><button type="button" id="admin-logout-btn" class="btn">로그아웃</button><button type="button" id="admin-dashboard-refresh" class="btn">새로고침</button></div>
         </div>
 
         <div id="admin-dashboard-status" role="status" aria-live="polite"></div>
@@ -466,7 +463,8 @@
     showAdminView("dashboard");
   }
 
-  function loadSheetRequests(){
+  function loadSheetRequests(refreshButton){
+    if(refreshButton) refreshButton.disabled=true;
     var params = new URLSearchParams({
       demo:"true", mode:"list", page:"1", page_size:"50",
       from:document.getElementById("pickup-date-from").value,
@@ -491,7 +489,8 @@
       .catch(function(){
         document.getElementById("admin-filter-rows").innerHTML = "";
         document.getElementById("admin-list-status").textContent = "데이터를 불러오지 못했습니다.";
-      });
+      })
+      .finally(function(){ if(refreshButton) refreshButton.disabled=false; });
   }
 
   function renderStatsList(id, values, suffix){
@@ -502,7 +501,8 @@
     });
   }
 
-  function loadDashboardStats(){
+  function loadDashboardStats(refreshButton){
+    if(refreshButton) refreshButton.disabled=true;
     var status=document.getElementById("admin-dashboard-status");
     var content=document.getElementById("admin-stats-content");
     content.hidden=true; status.textContent="통계 데이터를 불러오는 중입니다.";
@@ -516,7 +516,8 @@
         renderStatsList("stats-products", result.stats.products, "대");
         content.hidden=false; status.textContent="Google Sheets 가상 데이터 기준 통계입니다.";
       })
-      .catch(function(){ content.hidden=true; status.textContent="통계 데이터를 불러오지 못했습니다."; });
+      .catch(function(){ content.hidden=true; status.textContent="통계 데이터를 불러오지 못했습니다."; })
+      .finally(function(){ if(refreshButton) refreshButton.disabled=false; });
   }
 
   function showAdminView(view){
@@ -604,6 +605,9 @@
     event.preventDefault();
     loadSheetRequests();
   });
+  document.getElementById("admin-list-refresh").addEventListener("click", function(){ loadSheetRequests(this); });
+  document.getElementById("admin-dashboard-refresh").addEventListener("click", function(){ loadDashboardStats(this); });
+
   document.getElementById("admin-status-change").addEventListener("click", function(){
     var memo = document.getElementById("admin-process-memo");
     var message = document.getElementById("admin-detail-status-message");

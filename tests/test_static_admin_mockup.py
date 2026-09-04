@@ -6,6 +6,14 @@ HTML = Path("docs/20-design/admin-login.html").read_text(encoding="utf-8")
 APPLICANT_HTML = Path("docs/20-design/pc-applicant-info.html").read_text(encoding="utf-8")
 
 
+def test_admin_refresh_buttons_preserve_current_view_filters_and_block_duplicates():
+    for marker in ("admin-list-refresh", "admin-dashboard-refresh", "loadSheetRequests(this)", "loadDashboardStats(this)", ".finally(function(){ if(refreshButton) refreshButton.disabled=false; })"):
+        assert marker in HTML
+    assert "admin-action-stack" in HTML
+    assert "데이터를 불러오지 못했습니다." in HTML
+    assert "통계 데이터를 불러오지 못했습니다." in HTML
+
+
 def test_admin_mockup_contains_login_list_detail_dashboard_views():
     for view_id in ("admin-login-view", "admin-list-view", "admin-detail-view", "admin-dashboard-view"):
         assert f'id="{view_id}"' in HTML
