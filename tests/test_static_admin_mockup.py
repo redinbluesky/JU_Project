@@ -139,6 +139,7 @@ def test_sheets_demo_wiring_is_optional_and_demo_only():
     assert "payload.address" in apps_script
     assert "데모 신청자" not in apps_script
     assert "010-0000-0000" not in apps_script
+    assert "return {request_id: String(row[0]), office: String(row[3]), pickup_date: normalizeDate_(row[4]), status: '접수'};" in apps_script
 
 
 def test_request_number_uses_local_date_and_five_digit_sequence():

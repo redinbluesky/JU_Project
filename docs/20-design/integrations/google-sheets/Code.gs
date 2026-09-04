@@ -67,7 +67,7 @@ function listDemoRequests_(params) {
   });
   const start = (page - 1) * pageSize;
   const items = filtered.slice(start, start + pageSize).map(function (row) {
-    return {request_id: String(row[0]), office: String(row[3]), pickup_date: String(row[4]), status: '접수'};
+    return {request_id: String(row[0]), office: String(row[3]), pickup_date: normalizeDate_(row[4]), status: '접수'};
   });
   return json_({ok: true, items: items, total: filtered.length, page: page, page_size: pageSize, has_more: start + pageSize < filtered.length});
 }
