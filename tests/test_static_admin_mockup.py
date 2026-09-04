@@ -6,6 +6,16 @@ HTML = Path("docs/20-design/admin-login.html").read_text(encoding="utf-8")
 APPLICANT_HTML = Path("docs/20-design/pc-applicant-info.html").read_text(encoding="utf-8")
 
 
+def test_admin_list_actions_put_logout_below_horizontal_navigation_row():
+    assert 'class="admin-list-actions"' in HTML
+    assert 'class="admin-list-actions__top"' in HTML
+    assert 'admin-list-actions__top"><button type="button" class="btn admin-nav"' in HTML
+    assert 'id="admin-list-logout"' in HTML
+    assert 'id="admin-list-refresh"' in HTML
+    assert ".admin-list-actions__top{display:flex" in HTML
+    assert ".admin-list-actions__top{flex-wrap:wrap;" in HTML
+
+
 def test_admin_refresh_buttons_preserve_current_view_filters_and_block_duplicates():
     for marker in ("admin-list-refresh", "admin-dashboard-refresh", "loadSheetRequests(this)", "loadDashboardStats(this)", ".finally(function(){ if(refreshButton) refreshButton.disabled=false; })"):
         assert marker in HTML
