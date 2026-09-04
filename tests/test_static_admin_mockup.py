@@ -124,6 +124,8 @@ def test_sheets_demo_wiring_is_optional_and_demo_only():
     assert "listDemoRequests_" in apps_script
     assert "page_size" in apps_script
     assert "has_more" in apps_script
+    assert "normalizeDate_" in apps_script
+    assert "Utilities.formatDate" in apps_script
     assert "applicant_name" in apps_script
     assert "LockService" in apps_script
     assert "request_id" in apps_script

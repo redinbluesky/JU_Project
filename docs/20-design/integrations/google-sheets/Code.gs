@@ -32,7 +32,7 @@ function doGet(e) {
     if (!row) return json_({ok: true, found: false});
     return json_({ok: true, found: true, data: {
       request_id: String(row[0]), applicant_name: String(row[1]), phone: String(row[2]),
-      office: String(row[3]), pickup_date: String(row[4]), address: String(row[5]), products: String(row[6]),
+      office: String(row[3]), pickup_date: normalizeDate_(row[4]), address: String(row[5]), products: String(row[6]),
       kakao_notify: String(row[7]) === 'Y'
     }});
   } catch (error) {
@@ -60,7 +60,7 @@ function listDemoRequests_(params) {
   if (sheet.getLastRow() < 2) return json_({ok: true, items: [], total: 0, page: page, page_size: pageSize, has_more: false});
   const rows = sheet.getRange(2, 2, sheet.getLastRow() - 1, 8).getValues();
   const filtered = rows.filter(function (row) {
-    const pickupDate = String(row[4]);
+    const pickupDate = normalizeDate_(row[4]);
     const rowOffice = String(row[3]);
     return (!from || pickupDate >= from) && (!to || pickupDate <= to) &&
       (office === '전체' || rowOffice.indexOf(office) === 0) && (status === '전체' || status === '접수');
@@ -127,6 +127,17 @@ function validate_(payload) {
     if (!['대여', '구매'].includes(item.rental_purchase)) throw new Error('invalid_rental_purchase');
     if (!Number.isInteger(item.quantity) || item.quantity < 1 || item.quantity > 5) throw new Error('invalid_quantity');
   });
+}
+
+function normalizeDate_(value) {
+  if (value instanceof Date && !isNaN(value.getTime())) {
+    return Utilities.formatDate(value, Session.getScriptTimeZone(), 'yyyy-MM-dd');
+  }
+  const text = String(value == null ? '' : value).trim();
+  const iso = text.match(/^(\d{4}-\d{2}-\d{2})/);
+  if (iso) return iso[1];
+  const parsed = new Date(text);
+  return isNaN(parsed.getTime()) ? '' : Utilities.formatDate(parsed, Session.getScriptTimeZone(), 'yyyy-MM-dd');
 }
 
 function sanitizeCell_(value) {
