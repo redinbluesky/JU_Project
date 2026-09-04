@@ -128,6 +128,8 @@ def test_sheets_demo_wiring_is_optional_and_demo_only():
     assert "stats.total" in apps_script
     assert "stats.regions" in apps_script
     assert "stats.products" in apps_script
+    assert "match(/^(.+?)\\s+\\([^)]*\\)\\s+x(\\d+)$/)" in apps_script
+    assert "String(row[6]).split(',')" in apps_script
     assert "page_size" in apps_script
     assert "has_more" in apps_script
     assert "normalizeDate_" in apps_script

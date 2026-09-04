@@ -59,7 +59,7 @@ function statsDemoRequests_() {
     const region = regionMatch ? regionMatch[1].replace(/^관할[:：]?\\s*/, '') : office;
     stats.regions[region] = (stats.regions[region] || 0) + 1;
     String(row[6]).split(',').forEach(function (item) {
-      const match = item.trim().match(/^(.+?)\\s+\\([^)]*\\)\\s+x(\\d+)$/);
+      const match = item.trim().match(/^(.+?)\s+\([^)]*\)\s+x(\d+)$/);
       if (match) stats.products[match[1]] = (stats.products[match[1]] || 0) + Number(match[2]);
     });
   });
