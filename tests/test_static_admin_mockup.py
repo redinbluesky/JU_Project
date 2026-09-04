@@ -144,14 +144,19 @@ def test_successful_submit_resets_form_state_but_failure_keeps_values():
     assert "catch(error)" in html
 
 
-def test_admin_sheets_lookup_screen_and_safe_rendering_are_wired():
-    assert 'id="sheets-lookup-form"' in HTML
-    assert 'id="sheets-request-id"' in HTML
-    assert 'id="sheets-phone"' in HTML
-    assert 'id="sheets-detail-data"' in HTML
-    assert 'URLSearchParams({demo:"true", request_id:requestId, phone:phone})' in HTML
-    assert 'dd.textContent=pair[1]' in HTML
-    assert 'showAdminView("detail")' in HTML
+def test_admin_sheets_lookup_section_is_removed():
+    for marker in ("sheets-lookup-form", "sheets-request-id", "sheets-phone", "sheets-detail-data", "Sheets 조회"):
+        assert marker not in HTML
+    assert "GOOGLE_SHEETS_WEB_APP_URL" not in HTML
+
+
+def test_admin_date_filter_defaults_to_previous_month_through_today_and_filters_pickup_date():
+    assert "function setDefaultPickupDateRange()" in HTML
+    assert "formatDateInput(start)" in HTML
+    assert "formatDateInput(end)" in HTML
+    assert "var from = document.getElementById(\"pickup-date-from\").value" in HTML
+    assert "row.dataset.pickupDate >= from" in HTML
+    assert "row.dataset.pickupDate <= to" in HTML
 
 
 def test_guide_menu_switches_right_panel_with_placeholder_copy():
