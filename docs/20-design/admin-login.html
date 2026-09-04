@@ -385,41 +385,18 @@
           </div>
         </div>
 
-        <div class="admin-dashboard-grid">
+        <div id="admin-dashboard-status" role="status" aria-live="polite"></div>
+        <div class="admin-dashboard-grid" id="admin-stats-content" hidden>
           <article class="card">
             <h2>전체 접수 건수</h2>
-            <dl class="detail-list">
-              <div><dt>총 접수 건수</dt><dd>128건</dd></div>
-              <div><dt>금일 신규</dt><dd>6건</dd></div>
-            </dl>
+            <dl class="detail-list"><div><dt>총 접수 건수</dt><dd id="stats-total">0건</dd></div></dl>
           </article>
-          <article class="card">
-            <h2>상태별 접수 건수</h2>
-            <dl class="detail-list">
-              <div><dt><span class="status-pill" data-state="pending" role="status">접수 대기</span></dt><dd>12건</dd></div>
-              <div><dt><span class="status-pill" data-state="done" role="status">수거 완료</span></dt><dd>96건</dd></div>
-              <div><dt><span class="status-pill" data-state="pending" role="status">A/S 요청</span></dt><dd>3건</dd></div>
-            </dl>
-          </article>
-          <article class="card">
-            <h2>권역별 접수 건수</h2>
-            <dl class="detail-list">
-              <div><dt>가온복지용구센터 (동구)</dt><dd>42건</dd></div>
-              <div><dt>나래복지용구센터 (서구)</dt><dd>51건</dd></div>
-              <div><dt>다솜복지용구센터 (남구)</dt><dd>35건</dd></div>
-            </dl>
-          </article>
-          <article class="card">
-            <h2>품목 수량</h2>
-            <dl class="detail-list">
-              <div><dt>전동침대</dt><dd>34대</dd></div>
-              <div><dt>수동휠체어</dt><dd>58대</dd></div>
-              <div><dt>보행보조차</dt><dd>36대</dd></div>
-            </dl>
-          </article>
+          <article class="card"><h2>상태별 접수 건수</h2><dl class="detail-list" id="stats-status"></dl></article>
+          <article class="card"><h2>권역별 접수 건수</h2><dl class="detail-list" id="stats-region"></dl></article>
+          <article class="card"><h2>품목 수량</h2><dl class="detail-list" id="stats-products"></dl></article>
         </div>
         <p class="office-desc" style="margin-top:var(--space-4);">
-          실제 데이터·API·DB 연동 없는 정적 목업 화면입니다. (WP-16) 신청자 화면과는 별도 파일로 분리되어 있으며, 이 페이지는 공개 신청 화면 메뉴에 노출되지 않습니다.
+          Google Sheets 가상 데이터 집계 연동 목업입니다. 상태 열이 없으면 모든 행을 접수 상태로 집계합니다.
         </p>
       </section>
     </div>
@@ -517,11 +494,37 @@
       });
   }
 
+  function renderStatsList(id, values, suffix){
+    var target = document.getElementById(id); target.innerHTML = "";
+    Object.keys(values).forEach(function(key){
+      var wrapper=document.createElement("div"); var label=document.createElement("dt"); var value=document.createElement("dd");
+      label.textContent=key; value.textContent=String(values[key]) + suffix; wrapper.appendChild(label); wrapper.appendChild(value); target.appendChild(wrapper);
+    });
+  }
+
+  function loadDashboardStats(){
+    var status=document.getElementById("admin-dashboard-status");
+    var content=document.getElementById("admin-stats-content");
+    content.hidden=true; status.textContent="통계 데이터를 불러오는 중입니다.";
+    fetch(GOOGLE_SHEETS_WEB_APP_URL + "?demo=true&mode=stats", {method:"GET"})
+      .then(function(response){ return response.json(); })
+      .then(function(result){
+        if(!result.ok) throw new Error(result.error || "stats_failed");
+        document.getElementById("stats-total").textContent=String(result.stats.total) + "건";
+        renderStatsList("stats-status", result.stats.status, "건");
+        renderStatsList("stats-region", result.stats.regions, "건");
+        renderStatsList("stats-products", result.stats.products, "대");
+        content.hidden=false; status.textContent="Google Sheets 가상 데이터 기준 통계입니다.";
+      })
+      .catch(function(){ content.hidden=true; status.textContent="통계 데이터를 불러오지 못했습니다."; });
+  }
+
   function showAdminView(view){
     document.body.setAttribute("data-admin-view", view);
     var target = document.getElementById("admin-" + view + "-view") || adminDashboardCard;
     if(target) target.focus();
     if(view === "list") loadSheetRequests();
+    if(view === "dashboard") loadDashboardStats();
   }
 
   function showLogin(){

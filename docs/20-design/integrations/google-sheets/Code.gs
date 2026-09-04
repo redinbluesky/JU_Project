@@ -16,6 +16,7 @@ function doGet(e) {
     const params = e && e.parameter ? e.parameter : {};
     if (params.demo !== 'true') return json_({ok: false, error: 'demo_only'});
     if (params.mode === 'list') return listDemoRequests_(params);
+    if (params.mode === 'stats') return statsDemoRequests_();
     const requestId = String(params.request_id || '');
     const phone = String(params.phone || '');
     if (!/^[A-Za-z0-9_-]{16,80}$/.test(requestId)) return json_({ok: false, error: 'invalid_request_id'});
@@ -38,6 +39,31 @@ function doGet(e) {
   } catch (error) {
     return json_({ok: false, error: error.message || 'invalid_request'});
   }
+}
+
+function statsDemoRequests_() {
+  const cache = CacheService.getScriptCache();
+  const rateKey = 'stats';
+  if (cache.get(rateKey)) return json_({ok: false, error: 'too_many_requests'});
+  cache.put(rateKey, '1', 2);
+  const sheet = getSheet_();
+  const stats = {total: 0, status: {}, regions: {}, products: {}};
+  if (sheet.getLastRow() < 2) return json_({ok: true, stats: stats});
+  const rows = sheet.getRange(2, 2, sheet.getLastRow() - 1, 8).getValues();
+  rows.forEach(function (row) {
+    stats.total += 1;
+    const status = '접수';
+    stats.status[status] = (stats.status[status] || 0) + 1;
+    const office = String(row[3]);
+    const regionMatch = office.match(/[（(]([^）)]*)[）)]/);
+    const region = regionMatch ? regionMatch[1].replace(/^관할[:：]?\\s*/, '') : office;
+    stats.regions[region] = (stats.regions[region] || 0) + 1;
+    String(row[6]).split(',').forEach(function (item) {
+      const match = item.trim().match(/^(.+?)\\s+\\([^)]*\\)\\s+x(\\d+)$/);
+      if (match) stats.products[match[1]] = (stats.products[match[1]] || 0) + Number(match[2]);
+    });
+  });
+  return json_({ok: true, stats: stats});
 }
 
 function listDemoRequests_(params) {

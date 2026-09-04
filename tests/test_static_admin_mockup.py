@@ -123,6 +123,11 @@ def test_sheets_demo_wiring_is_optional_and_demo_only():
     assert "too_many_requests" in apps_script
     assert "found" in apps_script
     assert "listDemoRequests_" in apps_script
+    assert "mode=stats" in HTML
+    assert "statsDemoRequests_" in apps_script
+    assert "stats.total" in apps_script
+    assert "stats.regions" in apps_script
+    assert "stats.products" in apps_script
     assert "page_size" in apps_script
     assert "has_more" in apps_script
     assert "normalizeDate_" in apps_script
@@ -163,6 +168,14 @@ def test_successful_submit_resets_form_state_but_failure_keeps_values():
 def test_admin_sheets_lookup_section_is_removed():
     for marker in ("sheets-lookup-form", "sheets-request-id", "sheets-phone", "sheets-detail-data"):
         assert marker not in HTML
+
+
+def test_admin_dashboard_loads_sheet_aggregates_without_fixed_counts():
+    for marker in ("stats-total", "stats-status", "stats-region", "stats-products", "mode=stats", "loadDashboardStats"):
+        assert marker in HTML
+    assert "통계 데이터를 불러오지 못했습니다." in HTML
+    for fixed in ("128건", "42건", "51건", "35건", "34대", "58대", "36대"):
+        assert fixed not in HTML
 
 
 def test_admin_api_failure_does_not_show_static_rows_as_results():
