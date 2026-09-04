@@ -599,16 +599,7 @@
 
   document.getElementById("admin-filter-form").addEventListener("submit", function(event){
     event.preventDefault();
-    var from = document.getElementById("pickup-date-from").value;
-    var to = document.getElementById("pickup-date-to").value;
-    var office = document.getElementById("office-filter").value;
-    var status = document.getElementById("status-filter").value;
-    var visibleRows = 0;
-    document.querySelectorAll(".admin-filter-row").forEach(function(row){
-      var matches = (!from || row.dataset.pickupDate >= from) && (!to || row.dataset.pickupDate <= to) && (office === "전체" || row.dataset.office === office) && (status === "전체" || row.dataset.status === status);
-      row.hidden = !matches; if(matches) visibleRows += 1;
-    });
-    document.getElementById("admin-list-status").textContent = visibleRows ? "검색 결과 " + visibleRows + "건 (필터 조건 적용)" : "검색 결과가 없습니다. 필터 조건을 확인해 주세요.";
+    loadSheetRequests();
   });
   document.getElementById("admin-status-change").addEventListener("click", function(){
     var memo = document.getElementById("admin-process-memo");

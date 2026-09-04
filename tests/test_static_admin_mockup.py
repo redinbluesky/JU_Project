@@ -28,13 +28,14 @@ def test_admin_mockup_has_state_change_and_conditional_pdf():
     assert "adminDetailPdf.hidden" in HTML
 
 
-def test_admin_filter_filters_rows_and_reports_empty_results():
+def test_admin_filter_loads_api_rows_and_reports_empty_results():
     assert "data-pickup-date" in HTML
     assert "data-office" in HTML
     assert "data-status" in HTML
     assert "admin-filter-row" in HTML
-    assert "visibleRows" in HTML
-    assert "검색 결과가 없습니다" in HTML
+    assert "loadSheetRequests()" in HTML
+    assert "result.total" in HTML
+    assert "검색 결과가 없습니다" in HTML or "Sheets 조회 결과가 없습니다" in HTML
 
 
 def test_admin_filter_controls_and_result_table_use_full_width_bordered_layout():
@@ -177,15 +178,15 @@ def test_admin_list_loads_minimal_sheet_rows_with_filters():
     assert 'to:document.getElementById("pickup-date-to").value' in HTML
     assert "loadSheetRequests()" in HTML
     assert "Sheets 조회 결과" in HTML
+    assert 'row.hidden = !matches' not in HTML
 
 
 def test_admin_date_filter_defaults_to_previous_month_through_today_and_filters_pickup_date():
     assert "function setDefaultPickupDateRange()" in HTML
     assert "formatDateInput(start)" in HTML
     assert "formatDateInput(end)" in HTML
-    assert "var from = document.getElementById(\"pickup-date-from\").value" in HTML
-    assert "row.dataset.pickupDate >= from" in HTML
-    assert "row.dataset.pickupDate <= to" in HTML
+    assert "from:document.getElementById(\"pickup-date-from\").value" in HTML
+    assert "to:document.getElementById(\"pickup-date-to\").value" in HTML
 
 
 def test_guide_menu_switches_right_panel_with_placeholder_copy():
