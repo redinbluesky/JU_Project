@@ -511,7 +511,10 @@
         });
         document.getElementById("admin-list-status").textContent = result.total ? "Sheets 조회 결과 " + result.total + "건" : "Sheets 조회 결과가 없습니다.";
       })
-      .catch(function(){ document.getElementById("admin-list-status").textContent = "Sheets 조회에 실패했습니다. 정적 데모 목록을 표시합니다."; });
+      .catch(function(){
+        document.getElementById("admin-filter-rows").innerHTML = "";
+        document.getElementById("admin-list-status").textContent = "데이터를 불러오지 못했습니다.";
+      });
   }
 
   function showAdminView(view){

@@ -164,6 +164,12 @@ def test_admin_sheets_lookup_section_is_removed():
         assert marker not in HTML
 
 
+def test_admin_api_failure_does_not_show_static_rows_as_results():
+    assert 'document.getElementById("admin-filter-rows").innerHTML = ""' in HTML
+    assert '"데이터를 불러오지 못했습니다."' in HTML
+    assert "정적 데모 목록을 표시합니다" not in HTML
+
+
 def test_admin_list_loads_minimal_sheet_rows_with_filters():
     assert "GOOGLE_SHEETS_WEB_APP_URL" in HTML
     assert 'mode:"list"' in HTML
