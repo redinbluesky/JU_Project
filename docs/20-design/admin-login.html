@@ -357,6 +357,14 @@
           <div class="submit-row"><button type="submit" class="btn btn-primary">조회</button></div>
         </form>
         <p id="admin-list-status" role="status" aria-live="polite"></p>
+        <form id="sheets-lookup-form" class="card" aria-label="Google Sheets 데모 조회" style="margin-bottom:var(--space-4);">
+          <h2>저장 데이터 조회 (가상 데모)</h2>
+          <div class="admin-login-grid">
+            <div class="field"><label for="sheets-request-id">신청번호</label><input type="text" id="sheets-request-id" placeholder="demo_..." required></div>
+            <div class="field"><label for="sheets-phone">휴대전화</label><input type="tel" id="sheets-phone" placeholder="010-0000-0000" required></div>
+          </div>
+          <div class="submit-row" style="margin-top:var(--space-4);"><span id="sheets-lookup-status" role="status" aria-live="polite"></span><button type="submit" class="btn btn-primary">Sheets 조회</button></div>
+        </form>
         <table class="admin-result-table"><thead><tr><th>접수번호</th><th>사업소</th><th>수거 희망일</th><th>상태</th><th>상세</th></tr></thead><tbody id="admin-filter-rows"><tr class="admin-filter-row" data-pickup-date="2026-08-28" data-office="가온복지용구센터" data-status="접수"><td>GJ-2026-000123</td><td>가온복지용구센터</td><td>2026-08-28</td><td><span class="status-pill" data-state="pending">접수</span></td><td><button type="button" class="btn admin-detail-open">상세 보기</button></td></tr><tr class="admin-filter-row" data-pickup-date="2026-08-29" data-office="나래복지용구센터" data-status="소독 완료"><td>GJ-2026-000124</td><td>나래복지용구센터</td><td>2026-08-29</td><td><span class="status-pill" data-state="done">소독 완료</span></td><td><button type="button" class="btn admin-detail-open">상세 보기</button></td></tr></tbody></table>
       </section>
     </div>
@@ -365,6 +373,7 @@
     <div class="admin-shell" id="admin-detail-view">
       <section class="admin-card admin-card--wide" aria-labelledby="admin-detail-title">
         <div class="admin-card__header"><h1 id="admin-detail-title" class="admin-card__title">접수 상세 GJ-2026-000123</h1><button type="button" class="btn admin-nav" data-view="list">목록으로</button></div>
+        <div id="sheets-detail-data" class="card" hidden><h2>Sheets 저장 데이터</h2><dl class="detail-list" id="sheets-detail-fields"></dl></div>
         <div class="detail-status-row"><span>현재 상태</span><span id="admin-detail-status" class="status-pill" data-state="pending">접수대기</span><button type="button" id="admin-status-change" class="btn btn-primary">상태 변경: 수거예정으로 변경</button><a id="admin-detail-pdf" class="btn can-download-pdf" href="#" hidden>PDF 다운로드</a></div>
         <div class="admin-dashboard-grid"><article class="card driver-assignment"><h2>픽업 담당 기사</h2><p class="office-desc">선택 항목은 기사명 + 연락처로 표시됩니다.</p><label for="driver-select">기사 선택</label><select id="driver-select"><option value="">미지정</option><option>홍길동 + 010-1234-5678</option><option>김민수 + 010-9876-5432</option></select><p>현재 지정 기사: <strong id="assigned-driver">미지정</strong></p><p>지정 시각: <time id="driver-assigned-at">-</time></p></article><article class="card"><h2>상태 진행</h2><div class="status-timeline" role="list"><span role="listitem">● 접수대기</span><span role="listitem">○ 수거예정</span><span role="listitem">○ 입고/소독중</span><span role="listitem">○ 소독완료</span><span role="listitem">○ 배송완료</span></div></article></div>
         <div class="card"><h2>처리 내역 메모</h2><textarea class="admin-process-memo" id="admin-process-memo" rows="3" placeholder="상태 변경 사유/현장 메모를 입력해 주세요"></textarea></div>
@@ -444,6 +453,7 @@
   var adminLoginCard = document.getElementById("admin-login-card");
   var adminDashboardCard = document.getElementById("admin-dashboard-card");
   var adminDetailPdf = document.getElementById("admin-detail-pdf");
+  var GOOGLE_SHEETS_WEB_APP_URL = "https://script.google.com/macros/s/AKfycbxgYmJssaYcDRWPB7rkFgy3a3cb0_QVCRrA786MW7U6rLHK0rr4iirSFQhODy2Rks2ttQ/exec";
 
   var ADMIN_DEMO_ID = "admin";
   var ADMIN_DEMO_PW = "admin1234";
@@ -550,6 +560,33 @@
   });
   document.querySelectorAll(".admin-detail-open").forEach(function(button){
     button.addEventListener("click", function(){ showAdminView("detail"); });
+  });
+
+  document.getElementById("sheets-lookup-form").addEventListener("submit", async function(event){
+    event.preventDefault();
+    var status = document.getElementById("sheets-lookup-status");
+    var requestId = document.getElementById("sheets-request-id").value.trim();
+    var phone = document.getElementById("sheets-phone").value.trim();
+    status.textContent = "조회 중입니다.";
+    try {
+      var query = new URLSearchParams({demo:"true", request_id:requestId, phone:phone});
+      var response = await fetch(GOOGLE_SHEETS_WEB_APP_URL + "?" + query.toString(), {method:"GET"});
+      var result = await response.json();
+      if(!response.ok || !result.ok) throw new Error(result.error || "lookup_failed");
+      if(!result.found){ status.textContent = "일치하는 가상 접수 데이터가 없습니다."; return; }
+      var data = result.data;
+      var fields = document.getElementById("sheets-detail-fields");
+      fields.innerHTML = "";
+      [["신청번호",data.request_id],["신청자",data.applicant_name],["연락처",data.phone],["사업소",data.office],["수거 희망일",data.pickup_date],["주소",data.address],["품목",data.products],["카카오 알림",data.kakao_notify ? "동의" : "미동의"]].forEach(function(pair){
+        var dt=document.createElement("dt"); dt.textContent=pair[0]; var dd=document.createElement("dd"); dd.textContent=pair[1]; fields.append(dt,dd);
+      });
+      document.getElementById("sheets-detail-data").hidden = false;
+      document.getElementById("admin-detail-title").textContent = "접수 상세 " + data.request_id;
+      status.textContent = "저장 데이터를 조회했습니다.";
+      showAdminView("detail");
+    } catch(error) {
+      status.textContent = error.message === "too_many_requests" ? "잠시 후 다시 조회해 주세요." : "Sheets 조회에 실패했습니다.";
+    }
   });
   document.getElementById("admin-filter-form").addEventListener("submit", function(event){
     event.preventDefault();

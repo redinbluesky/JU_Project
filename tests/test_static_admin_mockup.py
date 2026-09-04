@@ -117,6 +117,10 @@ def test_sheets_demo_wiring_is_optional_and_demo_only():
     assert "fetch(GOOGLE_SHEETS_WEB_APP_URL" in APPLICANT_HTML
     apps_script = Path("docs/20-design/integrations/google-sheets/Code.gs").read_text(encoding="utf-8")
     assert "function doPost" in apps_script
+    assert "function doGet" in apps_script
+    assert "CacheService" in apps_script
+    assert "too_many_requests" in apps_script
+    assert "found" in apps_script
     assert "LockService" in apps_script
     assert "request_id" in apps_script
     assert "DEMO_ONLY" in apps_script
@@ -138,6 +142,16 @@ def test_successful_submit_resets_form_state_but_failure_keeps_values():
     assert "draftProducts = new Map();" in html
     assert "if(saveSucceeded) resetApplicationForm();" in html
     assert "catch(error)" in html
+
+
+def test_admin_sheets_lookup_screen_and_safe_rendering_are_wired():
+    assert 'id="sheets-lookup-form"' in HTML
+    assert 'id="sheets-request-id"' in HTML
+    assert 'id="sheets-phone"' in HTML
+    assert 'id="sheets-detail-data"' in HTML
+    assert 'URLSearchParams({demo:"true", request_id:requestId, phone:phone})' in HTML
+    assert 'dd.textContent=pair[1]' in HTML
+    assert 'showAdminView("detail")' in HTML
 
 
 def test_guide_menu_switches_right_panel_with_placeholder_copy():

@@ -11,6 +11,34 @@ function json_(body) {
     .setMimeType(ContentService.MimeType.JSON);
 }
 
+function doGet(e) {
+  try {
+    const params = e && e.parameter ? e.parameter : {};
+    if (params.demo !== 'true') return json_({ok: false, error: 'demo_only'});
+    const requestId = String(params.request_id || '');
+    const phone = String(params.phone || '');
+    if (!/^[A-Za-z0-9_-]{16,80}$/.test(requestId)) return json_({ok: false, error: 'invalid_request_id'});
+    if (!/^01[016789]-\d{3,4}-\d{4}$/.test(phone)) return json_({ok: false, error: 'invalid_phone'});
+    const cache = CacheService.getScriptCache();
+    const rateKey = 'lookup:' + requestId + ':' + phone;
+    if (cache.get(rateKey)) return json_({ok: false, error: 'too_many_requests'});
+    cache.put(rateKey, '1', 2);
+
+    const sheet = getSheet_();
+    if (sheet.getLastRow() < 2) return json_({ok: true, found: false});
+    const rows = sheet.getRange(2, 2, sheet.getLastRow() - 1, 8).getValues();
+    const row = rows.find(function (values) { return String(values[0]) === requestId && String(values[2]) === phone; });
+    if (!row) return json_({ok: true, found: false});
+    return json_({ok: true, found: true, data: {
+      request_id: String(row[0]), applicant_name: String(row[1]), phone: String(row[2]),
+      office: String(row[3]), pickup_date: String(row[4]), address: String(row[5]), products: String(row[6]),
+      kakao_notify: String(row[7]) === 'Y'
+    }});
+  } catch (error) {
+    return json_({ok: false, error: error.message || 'invalid_request'});
+  }
+}
+
 function doPost(e) {
   const lock = LockService.getScriptLock();
   try {
