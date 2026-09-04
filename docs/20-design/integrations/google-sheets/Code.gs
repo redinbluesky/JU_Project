@@ -15,6 +15,7 @@ function doGet(e) {
   try {
     const params = e && e.parameter ? e.parameter : {};
     if (params.demo !== 'true') return json_({ok: false, error: 'demo_only'});
+    if (params.mode === 'list') return listDemoRequests_(params);
     const requestId = String(params.request_id || '');
     const phone = String(params.phone || '');
     if (!/^[A-Za-z0-9_-]{16,80}$/.test(requestId)) return json_({ok: false, error: 'invalid_request_id'});
@@ -37,6 +38,38 @@ function doGet(e) {
   } catch (error) {
     return json_({ok: false, error: error.message || 'invalid_request'});
   }
+}
+
+function listDemoRequests_(params) {
+  const from = String(params.from || '');
+  const to = String(params.to || '');
+  const office = String(params.office || '전체');
+  const status = String(params.status || '전체');
+  if (from && !/^\d{4}-\d{2}-\d{2}$/.test(from)) return json_({ok: false, error: 'invalid_from'});
+  if (to && !/^\d{4}-\d{2}-\d{2}$/.test(to)) return json_({ok: false, error: 'invalid_to'});
+  if (from && to && from > to) return json_({ok: false, error: 'invalid_date_range'});
+  if (office.length > 100 || status.length > 30) return json_({ok: false, error: 'invalid_filter'});
+  const page = Math.max(1, Math.min(1000, Number(params.page || 1)));
+  const pageSize = Math.max(1, Math.min(50, Number(params.page_size || 20)));
+  if (!Number.isInteger(page) || !Number.isInteger(pageSize)) return json_({ok: false, error: 'invalid_pagination'});
+  const cache = CacheService.getScriptCache();
+  const rateKey = 'list:' + [from, to, office, status, page, pageSize].join('|');
+  if (cache.get(rateKey)) return json_({ok: false, error: 'too_many_requests'});
+  cache.put(rateKey, '1', 2);
+  const sheet = getSheet_();
+  if (sheet.getLastRow() < 2) return json_({ok: true, items: [], total: 0, page: page, page_size: pageSize, has_more: false});
+  const rows = sheet.getRange(2, 2, sheet.getLastRow() - 1, 8).getValues();
+  const filtered = rows.filter(function (row) {
+    const pickupDate = String(row[4]);
+    const rowOffice = String(row[3]);
+    return (!from || pickupDate >= from) && (!to || pickupDate <= to) &&
+      (office === '전체' || rowOffice.indexOf(office) === 0) && (status === '전체' || status === '접수');
+  });
+  const start = (page - 1) * pageSize;
+  const items = filtered.slice(start, start + pageSize).map(function (row) {
+    return {request_id: String(row[0]), office: String(row[3]), pickup_date: String(row[4]), status: '접수'};
+  });
+  return json_({ok: true, items: items, total: filtered.length, page: page, page_size: pageSize, has_more: start + pageSize < filtered.length});
 }
 
 function doPost(e) {

@@ -444,6 +444,7 @@
   var adminLoginCard = document.getElementById("admin-login-card");
   var adminDashboardCard = document.getElementById("admin-dashboard-card");
   var adminDetailPdf = document.getElementById("admin-detail-pdf");
+  var GOOGLE_SHEETS_WEB_APP_URL = "https://script.google.com/macros/s/AKfycbxgYmJssaYcDRWPB7rkFgy3a3cb0_QVCRrA786MW7U6rLHK0rr4iirSFQhODy2Rks2ttQ/exec";
 
   var ADMIN_DEMO_ID = "admin";
   var ADMIN_DEMO_PW = "admin1234";
@@ -488,10 +489,36 @@
     showAdminView("dashboard");
   }
 
+  function loadSheetRequests(){
+    var params = new URLSearchParams({
+      demo:"true", mode:"list", page:"1", page_size:"50",
+      from:document.getElementById("pickup-date-from").value,
+      to:document.getElementById("pickup-date-to").value,
+      office:document.getElementById("office-filter").value,
+      status:document.getElementById("status-filter").value
+    });
+    fetch(GOOGLE_SHEETS_WEB_APP_URL + "?" + params.toString(), {method:"GET"})
+      .then(function(response){ return response.json(); })
+      .then(function(result){
+        if(!result.ok) throw new Error(result.error || "lookup_failed");
+        var body = document.getElementById("admin-filter-rows");
+        body.innerHTML = "";
+        result.items.forEach(function(item){
+          var row=document.createElement("tr"); row.className="admin-filter-row";
+          row.dataset.pickupDate=item.pickup_date; row.dataset.office=item.office; row.dataset.status=item.status;
+          [item.request_id,item.office,item.pickup_date,item.status].forEach(function(value){var cell=document.createElement("td");cell.textContent=value;row.appendChild(cell);});
+          var cell=document.createElement("td"); var button=document.createElement("button"); button.type="button"; button.className="btn admin-detail-open"; button.textContent="상세 보기"; button.addEventListener("click",function(){showAdminView("detail");}); cell.appendChild(button); row.appendChild(cell); body.appendChild(row);
+        });
+        document.getElementById("admin-list-status").textContent = result.total ? "Sheets 조회 결과 " + result.total + "건" : "Sheets 조회 결과가 없습니다.";
+      })
+      .catch(function(){ document.getElementById("admin-list-status").textContent = "Sheets 조회에 실패했습니다. 정적 데모 목록을 표시합니다."; });
+  }
+
   function showAdminView(view){
     document.body.setAttribute("data-admin-view", view);
     var target = document.getElementById("admin-" + view + "-view") || adminDashboardCard;
     if(target) target.focus();
+    if(view === "list") loadSheetRequests();
   }
 
   function showLogin(){

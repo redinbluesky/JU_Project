@@ -121,6 +121,10 @@ def test_sheets_demo_wiring_is_optional_and_demo_only():
     assert "CacheService" in apps_script
     assert "too_many_requests" in apps_script
     assert "found" in apps_script
+    assert "listDemoRequests_" in apps_script
+    assert "page_size" in apps_script
+    assert "has_more" in apps_script
+    assert "applicant_name" in apps_script
     assert "LockService" in apps_script
     assert "request_id" in apps_script
     assert "DEMO_ONLY" in apps_script
@@ -145,9 +149,17 @@ def test_successful_submit_resets_form_state_but_failure_keeps_values():
 
 
 def test_admin_sheets_lookup_section_is_removed():
-    for marker in ("sheets-lookup-form", "sheets-request-id", "sheets-phone", "sheets-detail-data", "Sheets 조회"):
+    for marker in ("sheets-lookup-form", "sheets-request-id", "sheets-phone", "sheets-detail-data"):
         assert marker not in HTML
-    assert "GOOGLE_SHEETS_WEB_APP_URL" not in HTML
+
+
+def test_admin_list_loads_minimal_sheet_rows_with_filters():
+    assert "GOOGLE_SHEETS_WEB_APP_URL" in HTML
+    assert 'mode:"list"' in HTML
+    assert 'from:document.getElementById("pickup-date-from").value' in HTML
+    assert 'to:document.getElementById("pickup-date-to").value' in HTML
+    assert "loadSheetRequests()" in HTML
+    assert "Sheets 조회 결과" in HTML
 
 
 def test_admin_date_filter_defaults_to_previous_month_through_today_and_filters_pickup_date():
