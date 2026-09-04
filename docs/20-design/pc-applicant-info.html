@@ -858,6 +858,14 @@
     return date.getFullYear() + "-" + String(date.getMonth() + 1).padStart(2, "0") + "-" + String(date.getDate()).padStart(2, "0");
   }
 
+  function nextDemoRequestId(){
+    var dateKey = formatLocalDate(new Date()).replace(/-/g, "");
+    var storageKey = "demo-request-seq-" + dateKey;
+    var sequence = Number(localStorage.getItem(storageKey) || "0") + 1;
+    localStorage.setItem(storageKey, String(sequence));
+    return dateKey + "-" + String(sequence).padStart(5, "0");
+  }
+
   var pickupDate = document.getElementById("pickup-date");
   var minimumDate = minimumPickupDate(new Date());
   pickupDate.setAttribute("min", formatLocalDate(minimumDate));
@@ -986,7 +994,7 @@
       alertBox.innerHTML = "";
       var payload = {
         demo: DEMO_ONLY,
-        request_id: "demo_" + Date.now() + "_" + Math.random().toString(36).slice(2, 10),
+        request_id: nextDemoRequestId(),
         applicant_name: document.getElementById("applicant-name").value.trim(),
         phone: phoneInput.value.trim(),
         address: [pickupAddress.value.trim(), document.getElementById("pickup-address-detail").value.trim()].filter(Boolean).join(" "),

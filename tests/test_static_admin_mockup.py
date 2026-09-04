@@ -126,6 +126,7 @@ def test_sheets_demo_wiring_is_optional_and_demo_only():
     assert "has_more" in apps_script
     assert "normalizeDate_" in apps_script
     assert "Utilities.formatDate" in apps_script
+    assert "yyyy-MM-dd" in apps_script
     assert "applicant_name" in apps_script
     assert "LockService" in apps_script
     assert "request_id" in apps_script
@@ -138,6 +139,13 @@ def test_sheets_demo_wiring_is_optional_and_demo_only():
     assert "payload.address" in apps_script
     assert "데모 신청자" not in apps_script
     assert "010-0000-0000" not in apps_script
+
+
+def test_request_number_uses_local_date_and_five_digit_sequence():
+    assert "function nextDemoRequestId()" in APPLICANT_HTML
+    assert "replace(/-/g, \"\")" in APPLICANT_HTML
+    assert "padStart(5, \"0\")" in APPLICANT_HTML
+    assert "request_id: nextDemoRequestId()" in APPLICANT_HTML
 
 
 def test_successful_submit_resets_form_state_but_failure_keeps_values():
